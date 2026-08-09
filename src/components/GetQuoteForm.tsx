@@ -55,7 +55,10 @@ export default function GetQuoteForm({ preselectServiceSlug }: GetQuoteFormProps
 
   const handleConfirm = async () => {
     const success = await booking.submit()
-    if (success) setConfirmOpen(false)
+    if (success) {
+      setConfirmOpen(false)
+      booking.reset()
+    }
   }
 
   useEffect(() => {

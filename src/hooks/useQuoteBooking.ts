@@ -26,6 +26,13 @@ export function useQuoteBooking({ initialServiceId = null }: { initialServiceId?
   const resetStartTime = useCallback(() => setStartTime(DEFAULT_TIME), [])
   const resetEndTime = useCallback(() => setEndTime({ ...DEFAULT_TIME, period: 'PM' }), [])
 
+  const reset = useCallback(() => {
+    setServiceId(null)
+    setDateRange(undefined)
+    resetStartTime()
+    resetEndTime()
+  }, [resetStartTime, resetEndTime])
+
   const formatTime = (t: TimeValue) => `${t.hour}:${t.minutes} ${t.period}`
 
   // Checks the request is fillable and sends guests to log in first. Returns
@@ -79,6 +86,7 @@ export function useQuoteBooking({ initialServiceId = null }: { initialServiceId?
     setEndTime,
     resetStartTime,
     resetEndTime,
+    reset,
     isRequesting,
     validate,
     submit,
