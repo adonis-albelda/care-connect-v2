@@ -6,7 +6,20 @@ export const list = query({
   args: {},
   handler: async (ctx) => {
     await requireAdmin(ctx)
-    return ctx.db.query('reservations').order('desc').collect()
+    const reservations = await ctx.db.query('reservations').order('desc').collect()
+    return Promise.all(
+      reservations.map(async (reservation) => {
+        const [service, client] = await Promise.all([
+          ctx.db.get(reservation.serviceId),
+          ctx.db.get(reservation.clientId),
+        ])
+        return {
+          ...reservation,
+          serviceTitle: service?.title ?? 'Unknown service',
+          clientEmail: client?.email ?? reservation.email ?? '—',
+        }
+      })
+    )
   },
 })
 

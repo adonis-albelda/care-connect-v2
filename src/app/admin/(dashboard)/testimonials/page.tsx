@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from 'convex/react'
+import { Star, CheckCircle, Clock } from 'lucide-react'
 import { api } from '@convex/_generated/api'
 import type { Doc } from '@convex/_generated/dataModel'
 import DataTable, { type Column } from '@/components/admin/DataTable'
@@ -21,16 +22,23 @@ const columns: Column<TestimonialRow>[] = [
 
 export default function TestimonialsPage() {
   const rows = useQuery(api.testimonials.list, isConvexConfigured ? {} : 'skip')
+  const all = rows ?? []
 
   return (
     <DataTable
       title="Testimonials"
       description="Seeded from the live Care Connect API (npx convex run seed:run)."
       columns={columns}
-      rows={rows ?? []}
+      rows={all}
       loading={isConvexConfigured && rows === undefined}
       error={null}
       connected={isConvexConfigured}
+      searchPlaceholder="Search testimonials…"
+      summary={[
+        { label: 'Total', value: all.length, icon: Star },
+        { label: 'Approved', value: all.filter((r) => r.status === 'approved').length, icon: CheckCircle },
+        { label: 'Pending', value: all.filter((r) => r.status === 'pending').length, icon: Clock },
+      ]}
     />
   )
 }
