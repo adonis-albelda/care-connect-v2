@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { Loader2 } from 'lucide-react'
 import FormField, { inputClass } from '@/components/FormField'
 import PasswordField from '@/components/PasswordField'
 import AuthLoadingOverlay from '@/components/auth/AuthLoadingOverlay'
@@ -67,15 +68,13 @@ export default function LoginForm() {
 
   return (
     <div>
-      {(verifying || isRequesting || !!oauthProvider) && (
+      {(verifying || isRequesting) && (
         <AuthLoadingOverlay
-          title={oauthProvider ? 'Verifying your identity' : isRequesting ? 'Logging in' : 'Checking your session'}
+          title={isRequesting ? 'Logging in' : 'Verifying your identity'}
           description={
-            oauthProvider
-              ? `Confirming your ${oauthProvider === 'google' ? 'Google' : 'Facebook'} account with Care Connect — almost there.`
-              : isRequesting
-                ? 'Matching your details securely. This only takes a moment.'
-                : 'Making sure everything is in order before you continue.'
+            isRequesting
+              ? 'Matching your details securely. This only takes a moment.'
+              : 'Hold tight — we’re securely confirming your Care Connect account.'
           }
         />
       )}
@@ -91,7 +90,11 @@ export default function LoginForm() {
           className="flex min-h-[48px] flex-1 items-center justify-center rounded-xl border border-border bg-white transition-colors duration-250 hover:bg-cloud disabled:opacity-60"
         >
           <span className="sr-only">Continue with Google</span>
-          <Image src="/images/icons/google-icon.svg" alt="" width={20} height={20} aria-hidden="true" />
+          {oauthProvider === 'google' ? (
+            <Loader2 className="h-5 w-5 animate-spin text-connect-blue" aria-hidden="true" />
+          ) : (
+            <Image src="/images/icons/google-icon.svg" alt="" width={20} height={20} aria-hidden="true" />
+          )}
         </button>
         <button
           type="button"
@@ -100,7 +103,11 @@ export default function LoginForm() {
           className="flex min-h-[48px] flex-1 items-center justify-center rounded-xl border border-border bg-white transition-colors duration-250 hover:bg-cloud disabled:opacity-60"
         >
           <span className="sr-only">Continue with Facebook</span>
-          <Image src="/images/icons/facebook-icon.svg" alt="" width={20} height={20} aria-hidden="true" />
+          {oauthProvider === 'facebook' ? (
+            <Loader2 className="h-5 w-5 animate-spin text-connect-blue" aria-hidden="true" />
+          ) : (
+            <Image src="/images/icons/facebook-icon.svg" alt="" width={20} height={20} aria-hidden="true" />
+          )}
         </button>
       </div>
 

@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
 import FormField, { inputClass } from '@/components/FormField'
 import PasswordField from '@/components/PasswordField'
 import AuthLoadingOverlay from '@/components/auth/AuthLoadingOverlay'
@@ -83,15 +84,13 @@ export default function RegisterForm() {
 
   return (
     <div>
-      {(verifying || isRequesting || !!oauthProvider) && (
+      {(verifying || isRequesting) && (
         <AuthLoadingOverlay
-          title={oauthProvider ? 'Verifying your identity' : isRequesting ? 'Creating your account' : 'Checking your session'}
+          title={isRequesting ? 'Creating your account' : 'Verifying your identity'}
           description={
-            oauthProvider
-              ? `Confirming your ${oauthProvider === 'google' ? 'Google' : 'Facebook'} account with Care Connect — almost there.`
-              : isRequesting
-                ? 'Setting up your profile securely. This only takes a moment.'
-                : 'Making sure everything is in order before you continue.'
+            isRequesting
+              ? 'Setting up your profile securely. This only takes a moment.'
+              : 'Hold tight — we’re securely confirming your Care Connect account.'
           }
         />
       )}
@@ -107,7 +106,11 @@ export default function RegisterForm() {
           className="flex min-h-[48px] flex-1 items-center justify-center rounded-xl border border-border bg-white transition-colors duration-250 hover:bg-cloud disabled:opacity-60"
         >
           <span className="sr-only">Sign up with Google</span>
-          <Image src="/images/icons/google-icon.svg" alt="" width={20} height={20} aria-hidden="true" />
+          {oauthProvider === 'google' ? (
+            <Loader2 className="h-5 w-5 animate-spin text-connect-blue" aria-hidden="true" />
+          ) : (
+            <Image src="/images/icons/google-icon.svg" alt="" width={20} height={20} aria-hidden="true" />
+          )}
         </button>
         <button
           type="button"
@@ -116,7 +119,11 @@ export default function RegisterForm() {
           className="flex min-h-[48px] flex-1 items-center justify-center rounded-xl border border-border bg-white transition-colors duration-250 hover:bg-cloud disabled:opacity-60"
         >
           <span className="sr-only">Sign up with Facebook</span>
-          <Image src="/images/icons/facebook-icon.svg" alt="" width={20} height={20} aria-hidden="true" />
+          {oauthProvider === 'facebook' ? (
+            <Loader2 className="h-5 w-5 animate-spin text-connect-blue" aria-hidden="true" />
+          ) : (
+            <Image src="/images/icons/facebook-icon.svg" alt="" width={20} height={20} aria-hidden="true" />
+          )}
         </button>
       </div>
 
