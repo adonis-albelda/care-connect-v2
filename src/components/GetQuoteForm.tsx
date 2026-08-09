@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/style.css'
 import { differenceInCalendarDays } from 'date-fns'
 import TimeField from '@/components/TimeField'
+import QuoteConfirmDialog from '@/components/QuoteConfirmDialog'
 import { useQuoteBooking } from '@/hooks/useQuoteBooking'
 import { useServicesQuery } from '@/hooks/useServicesQuery'
 import { useAuth } from '@/lib/auth-context'
@@ -50,6 +51,12 @@ export default function GetQuoteForm({ preselectServiceSlug }: GetQuoteFormProps
   const booking = useQuoteBooking()
   const { data: services = [], isLoading } = useServicesQuery()
   const { user } = useAuth()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+
+  const handleConfirm = async () => {
+    const success = await booking.submit()
+    if (success) setConfirmOpen(false)
+  }
 
   useEffect(() => {
     if (!preselectServiceSlug || !services.length) return
@@ -70,7 +77,7 @@ export default function GetQuoteForm({ preselectServiceSlug }: GetQuoteFormProps
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          booking.submit()
+          if (booking.validate()) setConfirmOpen(true)
         }}
         className="mt-10 grid gap-10 lg:grid-cols-3"
       >
@@ -196,7 +203,7 @@ export default function GetQuoteForm({ preselectServiceSlug }: GetQuoteFormProps
               disabled={booking.isRequesting}
               className="mt-2 flex min-h-[48px] items-center justify-center rounded-xl bg-connect-blue text-body font-semibold text-white shadow-card transition-all duration-250 hover:-translate-y-0.5 hover:bg-blue-deep hover:shadow-card-hover disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
             >
-              {booking.isRequesting ? 'Sending…' : 'Get A Quote'}
+              Review &amp; Send
             </button>
             <Link
               href="/"
@@ -207,6 +214,19 @@ export default function GetQuoteForm({ preselectServiceSlug }: GetQuoteFormProps
           </div>
         </aside>
       </form>
+
+      <QuoteConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={handleConfirm}
+        isSubmitting={booking.isRequesting}
+        serviceTitle={selectedService?.title ?? 'Not selected yet'}
+        serviceImage={selectedService?.banner}
+        dateRangeLabel={formatRange(booking.dateRange)}
+        dayCountLabel={dayCount(booking.dateRange) != null ? `${dayCount(booking.dateRange)} day${dayCount(booking.dateRange) === 1 ? '' : 's'}` : null}
+        timeLabel={`${formatTime(booking.startTime)} – ${formatTime(booking.endTime)}`}
+        email={user?.email}
+      />
     </div>
   )
 }

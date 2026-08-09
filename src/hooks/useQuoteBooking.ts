@@ -28,21 +28,26 @@ export function useQuoteBooking({ initialServiceId = null }: { initialServiceId?
 
   const formatTime = (t: TimeValue) => `${t.hour}:${t.minutes} ${t.period}`
 
-  const submit = useCallback(async () => {
+  // Checks the request is fillable and sends guests to log in first. Returns
+  // whether it's ready to preview/confirm — does not send anything yet.
+  const validate = useCallback(() => {
     if (!serviceId) {
       showError('Pick a service to get started.')
-      return
+      return false
     }
     if (!dateRange?.from || !dateRange?.to) {
       showError('Choose your start and end dates.')
-      return
+      return false
     }
-    if (isRequesting) return
-
     if (!user) {
       router.push('/login')
-      return
+      return false
     }
+    return true
+  }, [serviceId, dateRange, user, router, showError])
+
+  const submit = useCallback(async () => {
+    if (!serviceId || !dateRange?.from || !dateRange?.to || isRequesting) return
 
     setIsRequesting(true)
     try {
@@ -54,12 +59,14 @@ export function useQuoteBooking({ initialServiceId = null }: { initialServiceId?
         endTime: formatTime(endTime),
       })
       showSuccess("You're all set. We'll be in touch within 24 hours.")
+      return true
     } catch {
       showError("That didn't go through — let's try that again.")
+      return false
     } finally {
       setIsRequesting(false)
     }
-  }, [serviceId, dateRange, startTime, endTime, isRequesting, user, router, createReservation, showSuccess, showError])
+  }, [serviceId, dateRange, startTime, endTime, isRequesting, createReservation, showSuccess, showError])
 
   return {
     serviceId,
@@ -73,6 +80,7 @@ export function useQuoteBooking({ initialServiceId = null }: { initialServiceId?
     resetStartTime,
     resetEndTime,
     isRequesting,
+    validate,
     submit,
   }
 }
