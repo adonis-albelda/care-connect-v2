@@ -39,7 +39,7 @@ export default function QuoteConfirmDialog({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[90] bg-ink/55 backdrop-blur-sm" />
         <Dialog.Content
-          className="fixed left-1/2 top-1/2 z-[91] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white shadow-card-hover focus:outline-none"
+          className="fixed left-1/2 top-1/2 z-[91] w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white shadow-card-hover focus:outline-none"
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-5 sm:px-8">
@@ -60,57 +60,57 @@ export default function QuoteConfirmDialog({
             </Dialog.Close>
           </div>
 
-          <div className="max-h-[65vh] overflow-y-auto px-6 py-5 sm:px-8">
-            <div className="flex items-center gap-4 rounded-xl border border-border bg-cloud p-4">
-              <div className="h-14 w-14 flex-none overflow-hidden rounded-lg bg-white">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={serviceImage || '/images/icons/service-placeholder.svg'}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
+          <div className="grid gap-5 px-6 py-5 sm:grid-cols-5 sm:px-8">
+            <div className="flex flex-col gap-3 sm:col-span-3">
+              <div className="flex items-center gap-4 rounded-xl border border-border bg-cloud p-4">
+                <div className="h-14 w-14 flex-none overflow-hidden rounded-lg bg-white">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={serviceImage || '/images/icons/service-placeholder.svg'}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div>
+                  <p className="text-small font-medium text-slate">Service</p>
+                  <p className="text-body-lg font-semibold text-ink">{serviceTitle}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-small font-medium text-slate">Service</p>
-                <p className="text-body-lg font-semibold text-ink">{serviceTitle}</p>
-              </div>
-            </div>
 
-            <dl className="mt-4 flex flex-col gap-3">
               <div className="flex items-start gap-3 rounded-xl border border-border px-4 py-3">
                 <CalendarDays className="mt-0.5 h-5 w-5 flex-none text-connect-blue" aria-hidden="true" />
                 <div>
-                  <dt className="text-small font-medium text-slate">Dates</dt>
-                  <dd className="text-body font-medium text-ink">
+                  <p className="text-small font-medium text-slate">Dates</p>
+                  <p className="text-body font-medium text-ink">
                     {dateRangeLabel}
                     {dayCountLabel && <span className="text-slate"> · {dayCountLabel}</span>}
-                  </dd>
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3 rounded-xl border border-border px-4 py-3">
                 <Clock className="mt-0.5 h-5 w-5 flex-none text-connect-blue" aria-hidden="true" />
                 <div>
-                  <dt className="text-small font-medium text-slate">Time</dt>
-                  <dd className="text-body font-medium text-ink">{timeLabel}</dd>
+                  <p className="text-small font-medium text-slate">Time</p>
+                  <p className="text-body font-medium text-ink">{timeLabel}</p>
                 </div>
               </div>
               {email && (
                 <div className="flex items-start gap-3 rounded-xl border border-border px-4 py-3">
                   <Mail className="mt-0.5 h-5 w-5 flex-none text-connect-blue" aria-hidden="true" />
                   <div>
-                    <dt className="text-small font-medium text-slate">We&rsquo;ll reach you at</dt>
-                    <dd className="text-body font-medium text-ink">{email}</dd>
+                    <p className="text-small font-medium text-slate">We&rsquo;ll reach you at</p>
+                    <p className="text-body font-medium text-ink">{email}</p>
                   </div>
                 </div>
               )}
-            </dl>
+            </div>
 
-            <div className="mt-5 rounded-xl bg-blue-light p-4">
+            <div className="rounded-xl bg-blue-light p-4 sm:col-span-2">
               <p className="flex items-center gap-2 text-small font-semibold text-connect-blue">
-                <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+                <ShieldCheck className="h-4 w-4 flex-none" aria-hidden="true" />
                 What happens next
               </p>
-              <ul className="mt-2 flex flex-col gap-1.5">
+              <ul className="mt-3 flex flex-col gap-2.5">
                 {NEXT_STEPS.map((step) => (
                   <li key={step} className="flex items-start gap-2 text-small text-ink">
                     <CircleCheck className="mt-0.5 h-3.5 w-3.5 flex-none text-connect-blue" aria-hidden="true" />
