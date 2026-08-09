@@ -66,6 +66,12 @@ export default function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-4 md:flex">
+          <Link
+            href="/get-quote"
+            className="flex min-h-[44px] items-center rounded-xl bg-connect-blue px-5 text-body font-semibold shadow-card transition-all duration-250 hover:-translate-y-0.5 hover:bg-blue-deep hover:shadow-card-hover"
+          >
+            <span className="gradient-shimmer-text">Get A Quote</span>
+          </Link>
           {user ? (
             <SiteUserMenu user={user} onSignOut={handleSignOut} />
           ) : (
@@ -76,12 +82,6 @@ export default function SiteHeader() {
               Guest — Log in
             </Link>
           )}
-          <Link
-            href="/get-quote"
-            className="flex min-h-[44px] items-center rounded-xl bg-connect-blue px-5 text-body font-semibold shadow-card transition-all duration-250 hover:-translate-y-0.5 hover:bg-blue-deep hover:shadow-card-hover"
-          >
-            <span className="gradient-shimmer-text">Get A Quote</span>
-          </Link>
         </div>
 
         <button
