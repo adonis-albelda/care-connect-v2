@@ -3,8 +3,10 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import Reveal from '@/components/Reveal'
 import { useServicesQuery } from '@/hooks/useServicesQuery'
+import { useAuth } from '@/lib/auth-context'
 
 const SOCIAL = [
   { href: 'https://facebook.com', icon: '/images/icons/facebook.svg', label: 'Care Connect on Facebook' },
@@ -83,6 +85,17 @@ export default function AuthShell({
   backHref?: string
   backLabel?: string
 }) {
+  const router = useRouter()
+  const { user, loading } = useAuth()
+
+  useEffect(() => {
+    if (!loading && user) router.replace('/')
+  }, [loading, user, router])
+
+  // Signed-in visitors have no business on login/register/forgot-password —
+  // bail out to nothing while the redirect above kicks in.
+  if (!loading && user) return null
+
   return (
     <div className="grid min-h-[calc(100vh-64px)] bg-white lg:grid-cols-2">
       <svg width="0" height="0" className="absolute" aria-hidden="true">
