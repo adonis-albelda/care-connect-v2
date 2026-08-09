@@ -1,0 +1,33 @@
+import { v } from 'convex/values'
+import { query, mutation } from './_generated/server'
+import { requireAdmin, requireAuth } from './authHelpers'
+
+export const list = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx)
+    return ctx.db.query('reservations').order('desc').collect()
+  },
+})
+
+// Public site — signed-in client requests a booking. Rate/total fields are
+// left for the admin dashboard to fill in once staff price the request.
+export const create = mutation({
+  args: {
+    serviceId: v.id('services'),
+    startDate: v.string(),
+    endDate: v.string(),
+    startTime: v.string(),
+    endTime: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await requireAuth(ctx)
+    const user = await ctx.db.get(userId)
+    return ctx.db.insert('reservations', {
+      ...args,
+      clientId: userId,
+      email: user?.email,
+      hst: '0',
+    })
+  },
+})

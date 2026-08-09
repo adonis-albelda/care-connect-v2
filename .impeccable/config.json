@@ -1,0 +1,23 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "src/app/globals.css"
+        ],
+        "createdAt": "2026-08-08T06:04:25.457Z",
+        "reason": "User explicitly requested animated gradient text on the header Get A Quote CTA"
+      },
+      {
+        "rule": "bounce-easing",
+        "value": "button-bounce",
+        "createdAt": "2026-08-08T15:07:57.890Z",
+        "reason": "User explicitly requested bouncing text on button hover/focus"
+      }
+    ]
+  }
+}

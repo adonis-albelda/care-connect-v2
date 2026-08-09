@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-08T00:00:00.000Z",
+  "title": "Design System: Care Connect",
+  "extensions": {
+    "colorMeta": {
+      "trust-blue": { "role": "primary", "displayName": "Trust Blue", "canonical": "#183891", "tonalRamp": ["#0b0f1b", "#0e1835", "#122356", "#152f77", "#183891", "#455fa6", "#7e8fc1", "#b6c0dc"] },
+      "trust-blue-deep": { "role": "primary", "displayName": "Deep Harbor", "canonical": "#0F2461", "tonalRamp": ["#0b0d16", "#0c1227", "#0d183c", "#0e1f50", "#0f2461", "#3e4f80", "#7984a7", "#b4bace"] },
+      "trust-blue-light": { "role": "primary", "displayName": "Blue Mist", "canonical": "#D6E0F5", "tonalRamp": ["#1e1f25", "#474a53", "#7a808d", "#adb5c7", "#d6e0f5", "#dde5f6", "#e6ecf8", "#eff2fa"] },
+      "warm-amber": { "role": "secondary", "displayName": "Warm Amber", "canonical": "#E68A25", "tonalRamp": ["#201710", "#4c3015", "#83501b", "#ba7020", "#e68a25", "#eaa050", "#efbc86", "#f4d8bc"] },
+      "warm-amber-light": { "role": "secondary", "displayName": "Amber Light", "canonical": "#FCE3C5", "tonalRamp": ["#222020", "#534b45", "#8f8173", "#ccb8a0", "#fce3c5", "#fce8d0", "#fbedde", "#fbf3ec"] },
+      "warm-amber-deep": { "role": "secondary", "displayName": "Amber Deep", "canonical": "#B5680F", "tonalRamp": ["#1b130e", "#3d260e", "#683e0f", "#93550f", "#b5680f", "#c3853e", "#d4aa7a", "#e5ceb5"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#1A1D29", "tonalRamp": ["#0c0c11", "#0f1016", "#13141d", "#171924", "#1a1d29", "#474953", "#7f8088", "#b7b8bd"] },
+      "slate": { "role": "neutral", "displayName": "Slate", "canonical": "#5B6070", "tonalRamp": ["#121318", "#22242b", "#373944", "#4b4f5c", "#5b6070", "#7b7f8c", "#a3a5af", "#caccd2"] },
+      "mist": { "role": "neutral", "displayName": "Mist", "canonical": "#9AA0B0", "tonalRamp": ["#18191e", "#35373f", "#595d67", "#7d8290", "#9aa0b0", "#adb2bf", "#c5c9d2", "#dddfe5"] },
+      "cloud": { "role": "neutral", "displayName": "Cloud", "canonical": "#F4F6FA", "tonalRamp": ["#212226", "#505155", "#8b8c90", "#c5c7cb", "#f4f6fa", "#f5f7fa", "#f7f8fb", "#f8f9fb"] },
+      "border": { "role": "neutral", "displayName": "Border", "canonical": "#E3E6ED", "tonalRamp": ["#202024", "#4b4c51", "#818389", "#b8bac0", "#e3e6ed", "#e8eaf0", "#edeff4", "#f3f4f8"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headline only, e.g. 'Care That Comes to You'." },
+      "headline-h1": { "displayName": "H1", "purpose": "Page titles and top-level section headers." },
+      "headline-h2": { "displayName": "H2", "purpose": "Secondary section headers." },
+      "headline-h3": { "displayName": "H3", "purpose": "Card titles, pillar headings." },
+      "body-lg": { "displayName": "Body Large", "purpose": "Primary reading text, hero subhead." },
+      "body": { "displayName": "Body", "purpose": "Default UI text, the 16px accessibility floor." },
+      "small": { "displayName": "Small", "purpose": "Captions, field error text, helper copy only." }
+    },
+    "shadows": [
+      { "name": "card", "value": "0px 4px 20px rgba(24,56,145,0.08)", "purpose": "Resting elevation for cards, scrolled header, CTA buttons." },
+      { "name": "card-hover", "value": "0px 8px 28px rgba(24,56,145,0.14)", "purpose": "Hover elevation for cards/buttons, paired with a small upward translate." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0, 0, 0.2, 1)", "purpose": "Default 250ms ease-out for hover/scroll transitions (shadow, translate, color, background)." },
+      { "name": "reveal", "value": "400ms ease-out, translateY(16px) -> 0, opacity 0 -> 1", "purpose": "Scroll-triggered section/card entrance via the Reveal component, staggered per item." },
+      { "name": "toast-in", "value": "250ms ease-out, translateY(8px) -> 0, opacity 0 -> 1", "purpose": "Toast notification entrance." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single dominant call to action per view (e.g. 'Get A Quote').",
+      "html": "<a href=\"#\" class=\"ds-btn-primary\">Get A Quote</a>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 20px; border-radius: 20px; background: #183891; color: #ffffff; font-family: Inter, sans-serif; font-size: 16px; font-weight: 600; text-decoration: none; box-shadow: 0px 4px 20px rgba(24,56,145,0.08); transition: background 250ms ease-out, box-shadow 250ms ease-out, transform 250ms ease-out; } .ds-btn-primary:hover, .ds-btn-primary:focus-visible { background: #0F2461; box-shadow: 0px 8px 28px rgba(24,56,145,0.14); transform: translateY(-2px); } .ds-btn-primary:focus-visible { outline: 2px solid #E68A25; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Lower-emphasis action beside a primary CTA (e.g. 'Log in', 'Sign out').",
+      "html": "<button class=\"ds-btn-secondary\">Log in</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 8px; background: transparent; border: none; color: #183891; font-family: Inter, sans-serif; font-size: 16px; font-weight: 500; text-underline-offset: 4px; cursor: pointer; } .ds-btn-secondary:hover { text-decoration: underline; } .ds-btn-secondary:focus-visible { outline: 2px solid #E68A25; outline-offset: 2px; border-radius: 4px; }"
+    },
+    {
+      "name": "Service Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Feature/service card with image, title, description, and CTA — the canonical card used across services and testimonials.",
+      "html": "<article class=\"ds-card\"><img class=\"ds-card-img\" src=\"\" alt=\"\" /><h3 class=\"ds-card-title\">Personal Care</h3><p class=\"ds-card-body\">Daily living assistance tailored to your family's needs.</p><a href=\"#\" class=\"ds-card-cta\">Learn more</a></article>",
+      "css": ".ds-card { display: flex; flex-direction: column; height: 100%; border-radius: 24px; border: 1px solid #E3E6ED; background: #ffffff; padding: 24px; box-shadow: 0px 4px 20px rgba(24,56,145,0.08); transition: box-shadow 250ms ease-out, transform 250ms ease-out; } .ds-card:hover { box-shadow: 0px 8px 28px rgba(24,56,145,0.14); transform: translateY(-4px); } .ds-card-img { height: 192px; width: 100%; border-radius: 12px; object-fit: cover; } .ds-card-title { margin-top: 20px; font-family: Poppins, sans-serif; font-size: 22px; font-weight: 600; color: #1A1D29; } .ds-card-body { margin-top: 8px; flex: 1; font-family: Inter, sans-serif; font-size: 16px; line-height: 1.6; color: #5B6070; } .ds-card-cta { margin-top: 24px; display: flex; min-height: 44px; align-items: center; justify-content: center; border-radius: 20px; background: #183891; color: #ffffff; font-family: Inter, sans-serif; font-size: 16px; font-weight: 600; text-decoration: none; transition: background 250ms ease-out, transform 250ms ease-out; } .ds-card-cta:hover { background: #0F2461; transform: translateY(-2px); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Labeled form field with above-field label, 48px minimum height, and kindly-worded inline error state.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-field-label\" for=\"ds-email\"><span class=\"ds-field-required\">* </span>Email address</label><input id=\"ds-email\" class=\"ds-field-input\" type=\"email\" placeholder=\"you@example.com\" /><p class=\"ds-field-error\">That doesn't look like an email — mind checking it?</p></div>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 8px; font-family: Inter, sans-serif; } .ds-field-label { font-size: 16px; font-weight: 500; color: #1A1D29; } .ds-field-required { color: #D64545; } .ds-field-input { min-height: 48px; width: 100%; border-radius: 20px; border: 1px solid #E3E6ED; background: #ffffff; padding: 0 16px; font-size: 16px; color: #1A1D29; } .ds-field-input::placeholder { color: #9AA0B0; } .ds-field-input:focus-visible { outline: 2px solid #E68A25; outline-offset: 2px; } .ds-field-error { font-size: 14px; color: #D64545; }"
+    },
+    {
+      "name": "Site Header",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Sticky primary navigation: logo, up to 3 links, one persistent amber CTA. Gains blur + shadow after scroll.",
+      "html": "<header class=\"ds-header\"><div class=\"ds-header-inner\"><a class=\"ds-header-logo\" href=\"#\">Care Connect</a><nav class=\"ds-header-nav\" aria-label=\"Primary\"><a href=\"#\" class=\"ds-header-link ds-header-link-active\" aria-current=\"page\">Home</a><a href=\"#\" class=\"ds-header-link\">Services</a><a href=\"#\" class=\"ds-header-link\">Contact us</a></nav><a href=\"#\" class=\"ds-btn-primary\">Get A Quote</a></div></header>",
+      "css": ".ds-header { position: sticky; top: 0; background: #ffffff; transition: box-shadow 250ms ease-out, background 250ms ease-out; } .ds-header-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; max-width: 1280px; margin: 0 auto; padding: 12px 24px; } .ds-header-logo { font-family: Poppins, sans-serif; font-size: 22px; font-weight: 600; color: #183891; text-decoration: none; } .ds-header-nav { display: flex; align-items: center; gap: 32px; } .ds-header-link { font-family: Inter, sans-serif; font-size: 16px; font-weight: 500; color: #5B6070; text-decoration: none; transition: color 250ms ease-out; } .ds-header-link:hover { color: #183891; } .ds-header-link-active { color: #183891; } .ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 20px; border-radius: 20px; background: #183891; color: #ffffff; font-size: 16px; font-weight: 600; text-decoration: none; box-shadow: 0px 4px 20px rgba(24,56,145,0.08); transition: background 250ms ease-out, transform 250ms ease-out; } .ds-btn-primary:hover { background: #0F2461; transform: translateY(-2px); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Trusted Companion",
+    "overview": "Care Connect looks like a knowledgeable friend sitting down with you at the kitchen table, not a hospital intake form. Every surface is built to lower an anxious family member's cognitive load first and impress second: generous whitespace, large legible type, soft rounded geometry echoing the logo's two interlocking figures, and a blue-and-orange palette used with restraint — deep trust-blue for structure and navigation, warm amber reserved for the moments that need action. The system explicitly rejects clinical/cold hospital aesthetics (sterile whites, sharp corners, dense tables) and rejects flashy/gimmicky startup polish (aggressive motion, novelty for its own sake). Confidence is expressed through calm, not through volume.",
+    "keyCharacteristics": [
+      "Rounded, embracing geometry throughout (12–24px radii) — no sharp corners",
+      "Blue-tinted soft shadows, not generic gray, tying elevation back to brand",
+      "One accent color (amber) reserved for action; everything else stays in blue/neutral",
+      "Type sized up from typical SaaS defaults (16px body floor) for an older audience",
+      "Motion is a whisper: 200–300ms ease-out fades and lifts, never parallax or flourish"
+    ],
+    "rules": [
+      { "name": "The Blue-First Rule", "body": "Trust Blue says \"act now\" as well as \"this is structure.\" Warm Amber does not appear as a CTA fill; it is held for rare secondary highlights only, so the page reads as one confident blue system rather than two competing accents.", "section": "colors" },
+      { "name": "The 16px Floor Rule", "body": "Body copy never renders below 16px anywhere in the product. This is a firm accessibility line for an audience that includes aging users and their families reading on small screens.", "section": "typography" },
+      { "name": "The Lift-on-Intent Rule", "body": "Nothing elevates until the user's cursor says they're interested. Cards and buttons sit flat (shadow-card) at rest and rise to shadow-card-hover with a -translate-y nudge only on hover/focus — elevation is a response, not a static decoration.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do fill every primary CTA with Trust Blue + white text; blue carries both structure and action.",
+      "Do keep every interactive element at a 44×44px minimum tap target, and inputs at 48px minimum height.",
+      "Do use the blue-tinted shadow-card / shadow-card-hover pair for all elevation — never a generic gray box-shadow.",
+      "Do label every form field above the input, permanently visible, never placeholder-only.",
+      "Do honor prefers-reduced-motion on every animated element (Reveal, toast-in)."
+    ],
+    "donts": [
+      "Don't use Warm Amber as a button/CTA fill — it's a reserve secondary highlight now, not the action color.",
+      "Don't use sharp corners anywhere — the system has no 0px-radius surfaces.",
+      "Don't let color alone signal state (error, required, active) — always pair with icon, text, or an asterisk.",
+      "Don't set body copy below 16px, even for dense UI or captions-adjacent text.",
+      "Don't add parallax, aggressive scroll effects, or motion longer than ~400ms — the audience skews older and easily disoriented by flashy motion."
+    ]
+  }
+}

@@ -1,0 +1,182 @@
+@import "tailwindcss";
+@config "../../tailwind.config.js";
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+@keyframes button-bounce {
+  0% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-6px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  70% {
+    transform: translateY(-3px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+button:not(:disabled):hover,
+button:not(:disabled):focus-visible {
+  animation: button-bounce 0.5s ease;
+}
+
+@theme inline {
+  --font-headline: var(--font-poppins);
+  --font-body: var(--font-inter);
+}
+
+:root {
+  --background: #f4f6fa;
+  --foreground: #1a1d29;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), sans-serif;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-poppins), sans-serif;
+}
+
+/* WCAG AA: visible 2px Care Orange focus ring on every interactive element */
+:focus-visible {
+  outline: 2px solid #183891;
+  outline-offset: 2px;
+}
+
+/* Restrained motion per design system: 200-300ms, ease-out, fade + slight rise only */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.toast-in {
+  animation: toast-in 250ms ease-out both;
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.reveal {
+  opacity: 0;
+}
+.reveal.is-visible {
+  animation: reveal 400ms ease-out both;
+}
+
+.rdp-root.cc-daypicker {
+  --rdp-accent-color: #183891;
+  --rdp-accent-background-color: #d6e0f5;
+  --rdp-day-height: 44px;
+  --rdp-day-width: 44px;
+  --rdp-font-family: var(--font-inter), sans-serif;
+  --rdp-range_start-color: #183891;
+  --rdp-range_end-color: #183891;
+  --rdp-range_start-date-background-color: #d6e0f5;
+  --rdp-range_end-date-background-color: #d6e0f5;
+  --rdp-range_middle-background-color: #d6e0f5;
+  --rdp-selected-border: 2px solid transparent;
+}
+
+/* Full-width inline calendar (get-quote page). Scoped separately from
+   .cc-daypicker's popover usages elsewhere, which stay compact. */
+.cc-daypicker-full {
+  width: 100%;
+}
+.cc-daypicker-full .rdp-months {
+  max-width: none;
+  width: 100%;
+}
+.cc-daypicker-full .rdp-month {
+  width: 100%;
+}
+.cc-daypicker-full .rdp-month_grid {
+  width: 100%;
+  table-layout: fixed;
+}
+.cc-daypicker-full .rdp-weekday,
+.cc-daypicker-full .rdp-day {
+  width: auto;
+  height: auto;
+}
+.cc-daypicker-full .rdp-day_button {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+}
+.cc-daypicker-full .rdp-selected .rdp-day_button {
+  font-weight: 600;
+}
+
+@keyframes gradient-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+.gradient-shimmer-text {
+  background-image: linear-gradient(
+    100deg,
+    #ffffff 40%,
+    rgba(255, 255, 255, 0.35) 50%,
+    #ffffff 60%
+  );
+  background-size: 250% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: gradient-shimmer 2.5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-in,
+  .reveal {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .gradient-shimmer-text {
+    animation: none !important;
+    background-image: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    color: inherit !important;
+  }
+  .animate-pulse {
+    animation: none !important;
+    opacity: 0.7 !important;
+  }
+  button:not(:disabled):hover,
+  button:not(:disabled):focus-visible {
+    animation: none !important;
+  }
+}

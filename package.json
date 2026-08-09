@@ -1,0 +1,40 @@
+{
+  "name": "care-connect-front-v2",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "convex:dev": "convex dev",
+    "convex:seed": "convex run seed:run"
+  },
+  "dependencies": {
+    "@auth/core": "^0.41.3",
+    "@convex-dev/auth": "^0.0.94",
+    "@radix-ui/react-select": "^2.3.7",
+    "@tanstack/react-query": "^5.101.4",
+    "clsx": "^2.1.1",
+    "convex": "^1.43.0",
+    "date-fns": "^4.4.0",
+    "firebase": "^12.17.1",
+    "lucide-react": "^1.30.0",
+    "motion": "^13.0.0",
+    "next": "16.3.0",
+    "react": "19.2.8",
+    "react-day-picker": "^10.0.1",
+    "react-dom": "19.2.8",
+    "tailwind-merge": "^3.6.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^26.2.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.0",
+    "tailwindcss": "^4",
+    "typescript": "^6.0.3"
+  }
+}
