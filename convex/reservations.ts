@@ -23,6 +23,28 @@ export const list = query({
   },
 })
 
+// Admin — edit a reservation's schedule and pricing after staff review it.
+export const update = mutation({
+  args: {
+    id: v.id('reservations'),
+    startDate: v.string(),
+    endDate: v.string(),
+    startTime: v.string(),
+    endTime: v.string(),
+    ratePerHour: v.optional(v.number()),
+    hst: v.string(),
+    hstAmount: v.optional(v.number()),
+    serviceAmount: v.optional(v.number()),
+    total: v.optional(v.number()),
+    totalHours: v.optional(v.number()),
+    totalDays: v.optional(v.number()),
+  },
+  handler: async (ctx, { id, ...fields }) => {
+    await requireAdmin(ctx)
+    await ctx.db.patch(id, fields)
+  },
+})
+
 // Public site — signed-in client requests a booking. Rate/total fields are
 // left for the admin dashboard to fill in once staff price the request.
 export const create = mutation({
