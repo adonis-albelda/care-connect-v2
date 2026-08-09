@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import FormField, { inputClass } from '@/components/FormField'
 import PasswordField from '@/components/PasswordField'
+import AuthLoadingOverlay from '@/components/auth/AuthLoadingOverlay'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/lib/toast-context'
 import type { RegisterPayload } from '@/lib/types'
@@ -28,7 +29,7 @@ type FormErrors = Partial<Record<keyof RegisterPayload, string>>
 export default function RegisterForm() {
   const router = useRouter()
   const { showSuccess, showError } = useToast()
-  const { signUp, signInWithOAuth } = useAuth()
+  const { signUp, signInWithOAuth, loading: verifying } = useAuth()
 
   const [user, setUser] = useState<RegisterPayload>(INITIAL)
   const [errors, setErrors] = useState<FormErrors>({})
@@ -82,6 +83,10 @@ export default function RegisterForm() {
 
   return (
     <div>
+      {(verifying || isRequesting || !!oauthProvider) && (
+        <AuthLoadingOverlay label={oauthProvider ? 'Verifying your identity…' : isRequesting ? 'Creating your account…' : 'Checking your session…'} />
+      )}
+
       <h2 className="font-headline text-h2 text-connect-blue">Sign up to Care Connect</h2>
       <p className="mt-2 text-body text-slate">Create a new account</p>
 

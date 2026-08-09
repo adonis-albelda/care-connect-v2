@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import FormField, { inputClass } from '@/components/FormField'
 import PasswordField from '@/components/PasswordField'
+import AuthLoadingOverlay from '@/components/auth/AuthLoadingOverlay'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/lib/toast-context'
 
@@ -20,7 +21,7 @@ interface FormErrors {
 
 export default function LoginForm() {
   const router = useRouter()
-  const { signInWithPassword, signInWithOAuth } = useAuth()
+  const { signInWithPassword, signInWithOAuth, loading: verifying } = useAuth()
   const { showSuccess, showError } = useToast()
 
   const [email, setEmail] = useState('')
@@ -66,6 +67,10 @@ export default function LoginForm() {
 
   return (
     <div>
+      {(verifying || isRequesting || !!oauthProvider) && (
+        <AuthLoadingOverlay label={oauthProvider ? 'Verifying your identity…' : isRequesting ? 'Logging in…' : 'Checking your session…'} />
+      )}
+
       <h2 className="font-headline text-h2 text-connect-blue">Welcome to Care Connect</h2>
       <p className="mt-2 text-body text-slate">Care That Comes to You</p>
 
