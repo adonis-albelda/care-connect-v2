@@ -48,7 +48,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithOAuth = useCallback(
     async (provider: 'google' | 'facebook') => {
-      await signIn(provider)
+      // Without this, Convex Auth redirects back to "/" after the provider
+      // hands off, not the page sign-in was started from — so a page-local
+      // "verifying" overlay (LoginForm/RegisterForm) never gets to mount.
+      await signIn(provider, { redirectTo: window.location.pathname })
     },
     [signIn]
   )

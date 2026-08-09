@@ -10,6 +10,7 @@ import PasswordField from '@/components/PasswordField'
 import AuthLoadingOverlay from '@/components/auth/AuthLoadingOverlay'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/lib/toast-context'
+import { useMinVisibleDuration } from '@/hooks/useMinVisibleDuration'
 import type { RegisterPayload } from '@/lib/types'
 
 function isValidEmail(email: string) {
@@ -31,6 +32,11 @@ export default function RegisterForm() {
   const router = useRouter()
   const { showSuccess, showError } = useToast()
   const { signUp, signInWithOAuth, loading: verifying } = useAuth()
+
+  const [cameFromOAuth] = useState(
+    () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('code')
+  )
+  const showVerifying = useMinVisibleDuration(cameFromOAuth && verifying, 3000)
 
   const [user, setUser] = useState<RegisterPayload>(INITIAL)
   const [errors, setErrors] = useState<FormErrors>({})
@@ -84,7 +90,7 @@ export default function RegisterForm() {
 
   return (
     <div>
-      {(verifying || isRequesting) && (
+      {(showVerifying || isRequesting) && (
         <AuthLoadingOverlay
           title={isRequesting ? 'Creating your account' : 'Verifying your identity'}
           description={

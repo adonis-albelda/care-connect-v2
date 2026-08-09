@@ -10,6 +10,7 @@ import PasswordField from '@/components/PasswordField'
 import AuthLoadingOverlay from '@/components/auth/AuthLoadingOverlay'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/lib/toast-context'
+import { useMinVisibleDuration } from '@/hooks/useMinVisibleDuration'
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
@@ -24,6 +25,14 @@ export default function LoginForm() {
   const router = useRouter()
   const { signInWithPassword, signInWithOAuth, loading: verifying } = useAuth()
   const { showSuccess, showError } = useToast()
+
+  // A `code` param in the URL means we just landed back from the provider's
+  // account picker — only then should the verifying overlay hold for 3s.
+  // A plain page visit's brief initial session check shouldn't trigger it.
+  const [cameFromOAuth] = useState(
+    () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('code')
+  )
+  const showVerifying = useMinVisibleDuration(cameFromOAuth && verifying, 3000)
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -68,7 +77,7 @@ export default function LoginForm() {
 
   return (
     <div>
-      {(verifying || isRequesting) && (
+      {(showVerifying || isRequesting) && (
         <AuthLoadingOverlay
           title={isRequesting ? 'Logging in' : 'Verifying your identity'}
           description={

@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ShieldCheck } from 'lucide-react'
 
@@ -10,9 +9,7 @@ interface AuthLoadingOverlayProps {
 }
 
 export default function AuthLoadingOverlay({ title, description }: AuthLoadingOverlayProps) {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
-  if (!mounted) return null
+  if (typeof document === 'undefined') return null
 
   return createPortal(
     <div
