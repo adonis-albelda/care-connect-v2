@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/lib/auth-context'
+import SiteUserMenu from '@/components/SiteUserMenu'
 
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
@@ -66,15 +67,7 @@ export default function SiteHeader() {
 
         <div className="hidden items-center gap-4 md:flex">
           {user ? (
-            <>
-              <span className="text-body text-slate">{user.email}</span>
-              <button
-                onClick={handleSignOut}
-                className="min-h-[44px] rounded text-body font-medium text-connect-blue underline-offset-4 hover:underline"
-              >
-                Sign out
-              </button>
-            </>
+            <SiteUserMenu user={user} onSignOut={handleSignOut} />
           ) : (
             <Link
               href="/login"
@@ -118,12 +111,25 @@ export default function SiteHeader() {
               </Link>
             ))}
             {user ? (
-              <button
-                onClick={handleSignOut}
-                className="flex min-h-[44px] items-center rounded-lg px-2 text-left text-body-lg font-medium text-error hover:bg-cloud"
-              >
-                Sign out ({user.email})
-              </button>
+              <>
+                <div className="mt-2 flex items-center gap-3 rounded-lg border border-border px-3 py-3">
+                  <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-gradient-to-br from-connect-blue to-blue-deep text-body font-semibold text-white">
+                    {(user.first_name?.[0] ?? user.email[0] ?? '?').toUpperCase()}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-body font-semibold text-ink">
+                      {[user.first_name, user.last_name].filter(Boolean).join(' ') || user.email}
+                    </p>
+                    <p className="truncate text-small text-slate">{user.email}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="mt-1 flex min-h-[44px] items-center rounded-lg px-2 text-left text-body-lg font-medium text-error hover:bg-cloud"
+                >
+                  Sign out
+                </button>
+              </>
             ) : (
               <>
                 <Link href="/login" onClick={closeMenu} className="flex min-h-[44px] items-center rounded-lg px-2 text-body-lg font-medium text-ink hover:bg-cloud">
