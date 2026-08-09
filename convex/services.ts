@@ -1,5 +1,5 @@
 import { v } from 'convex/values'
-import { query } from './_generated/server'
+import { query, mutation } from './_generated/server'
 import { requireAdmin } from './authHelpers'
 
 export const list = query({
@@ -7,6 +7,23 @@ export const list = query({
   handler: async (ctx) => {
     await requireAdmin(ctx)
     return ctx.db.query('services').order('desc').collect()
+  },
+})
+
+export const update = mutation({
+  args: {
+    id: v.id('services'),
+    title: v.string(),
+    shortDescription: v.string(),
+    description: v.string(),
+    isActive: v.boolean(),
+    banner: v.optional(v.string()),
+    slug: v.optional(v.string()),
+    assistance: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, { id, ...fields }) => {
+    await requireAdmin(ctx)
+    await ctx.db.patch(id, fields)
   },
 })
 

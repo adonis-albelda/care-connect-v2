@@ -74,6 +74,18 @@ h1, h2, h3 {
   animation: toast-in 250ms ease-out both;
 }
 
+@keyframes drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.admin-drawer[data-state='open'] {
+  animation: drawer-in 240ms ease-out;
+}
+
 @keyframes reveal {
   from {
     opacity: 0;
