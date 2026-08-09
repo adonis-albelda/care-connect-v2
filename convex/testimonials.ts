@@ -10,6 +10,14 @@ export const list = query({
   },
 })
 
+export const setStatus = mutation({
+  args: { id: v.id('testimonials'), status: v.union(v.literal('pending'), v.literal('approved')) },
+  handler: async (ctx, { id, status }) => {
+    const adminId = await requireAdmin(ctx)
+    await ctx.db.patch(id, { status, approver: status === 'approved' ? adminId : undefined })
+  },
+})
+
 // Public site — signed-in client shares a testimonial. Goes in as pending;
 // an admin approves it before it shows up in listApproved below.
 export const create = mutation({
