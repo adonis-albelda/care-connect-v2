@@ -68,7 +68,16 @@ export default function LoginForm() {
   return (
     <div>
       {(verifying || isRequesting || !!oauthProvider) && (
-        <AuthLoadingOverlay label={oauthProvider ? 'Verifying your identity…' : isRequesting ? 'Logging in…' : 'Checking your session…'} />
+        <AuthLoadingOverlay
+          title={oauthProvider ? 'Verifying your identity' : isRequesting ? 'Logging in' : 'Checking your session'}
+          description={
+            oauthProvider
+              ? `Confirming your ${oauthProvider === 'google' ? 'Google' : 'Facebook'} account with Care Connect — almost there.`
+              : isRequesting
+                ? 'Matching your details securely. This only takes a moment.'
+                : 'Making sure everything is in order before you continue.'
+          }
+        />
       )}
 
       <h2 className="font-headline text-h2 text-connect-blue">Welcome to Care Connect</h2>

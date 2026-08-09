@@ -84,7 +84,16 @@ export default function RegisterForm() {
   return (
     <div>
       {(verifying || isRequesting || !!oauthProvider) && (
-        <AuthLoadingOverlay label={oauthProvider ? 'Verifying your identity…' : isRequesting ? 'Creating your account…' : 'Checking your session…'} />
+        <AuthLoadingOverlay
+          title={oauthProvider ? 'Verifying your identity' : isRequesting ? 'Creating your account' : 'Checking your session'}
+          description={
+            oauthProvider
+              ? `Confirming your ${oauthProvider === 'google' ? 'Google' : 'Facebook'} account with Care Connect — almost there.`
+              : isRequesting
+                ? 'Setting up your profile securely. This only takes a moment.'
+                : 'Making sure everything is in order before you continue.'
+          }
+        />
       )}
 
       <h2 className="font-headline text-h2 text-connect-blue">Sign up to Care Connect</h2>
