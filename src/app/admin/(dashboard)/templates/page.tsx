@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { useQuery, useMutation } from 'convex/react'
 import { Printer } from 'lucide-react'
 import { api } from '@convex/_generated/api'
@@ -210,17 +211,17 @@ function TemplatePreview({ form }: { form: FormState }) {
   return (
     <article className="rounded-2xl border border-border bg-white p-8 text-ink shadow-card print:rounded-none print:border-none print:p-0 print:shadow-none">
       <header className="flex items-center justify-between border-b border-border pb-6">
-        <div>
-          <p className="font-headline text-h3 text-connect-blue">Care Connect</p>
-          <p className="text-small text-slate">Quotation</p>
+        <Image src="/images/pdf-logo.png" alt="Care Connect — Care That Comes to You" width={144} height={38} className="h-auto w-32" />
+        <div className="text-right">
+          <p className="font-headline text-h3 text-ink">Quotation</p>
+          <p className="text-small text-slate">
+            {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+          </p>
         </div>
-        <p className="text-small text-slate">
-          {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-        </p>
       </header>
 
       <section className="border-b border-border py-6">
-        <h2 className="font-headline text-h3 text-connect-blue">{form.introTitle}</h2>
+        <h2 className="font-headline text-h3 text-ink">{form.introTitle}</h2>
         <div
           className="mt-3 text-small text-slate [&_p]:mb-3 [&_p:last-child]:mb-0"
           dangerouslySetInnerHTML={{ __html: form.introBody }}
@@ -228,7 +229,7 @@ function TemplatePreview({ form }: { form: FormState }) {
       </section>
 
       <section className="border-b border-border py-6">
-        <h2 className="font-headline text-h3 text-connect-blue">{form.staffTitle}</h2>
+        <h2 className="font-headline text-h3 text-ink">{form.staffTitle}</h2>
         <div
           className="mt-3 text-small text-slate [&_p]:mb-3 [&_p:last-child]:mb-0"
           dangerouslySetInnerHTML={{ __html: form.staffBody }}

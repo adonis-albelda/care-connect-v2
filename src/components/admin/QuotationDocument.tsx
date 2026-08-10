@@ -1,11 +1,13 @@
 'use client'
 
+import Image from 'next/image'
 import { useQuery } from 'convex/react'
 import { differenceInCalendarDays } from 'date-fns'
 import { Printer } from 'lucide-react'
 import { api } from '@convex/_generated/api'
 import type { Id } from '@convex/_generated/dataModel'
 import { isConvexConfigured } from '@/lib/convex-client'
+import QuotationSectionBar from '@/components/admin/QuotationSectionBar'
 
 function money(value?: number) {
   return value != null ? `$${value.toFixed(2)}` : '—'
@@ -51,11 +53,13 @@ export default function QuotationDocument({ reservationId }: { reservationId: st
 
       <article className="rounded-2xl border border-border bg-white p-8 text-ink shadow-card print:rounded-none print:border-none print:p-0 print:shadow-none sm:p-12">
         <header className="flex items-center justify-between border-b border-border pb-6">
-          <div>
-            <p className="font-headline text-h2 text-connect-blue">Care Connect</p>
-            <p className="text-small text-slate">Quotation</p>
+          <Image src="/images/pdf-logo.png" alt="Care Connect — Care That Comes to You" width={180} height={48} className="h-auto w-40" />
+          <div className="text-right">
+            <p className="font-headline text-h3 text-ink">Quotation</p>
+            <p className="text-small text-slate">
+              {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </p>
           </div>
-          <p className="text-small text-slate">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
         </header>
 
         <section className="grid gap-6 border-b border-border py-6 sm:grid-cols-2">
@@ -74,17 +78,17 @@ export default function QuotationDocument({ reservationId }: { reservationId: st
         {template && (
           <>
             <section className="border-b border-border py-6">
-              <h2 className="font-headline text-h3 text-connect-blue">{template.introTitle}</h2>
+              <h2 className="font-headline text-h3 text-ink">{template.introTitle}</h2>
               <div
-                className="prose-quotation mt-3 text-body text-slate [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pl-5"
+                className="mt-3 text-body text-slate [&_p]:mb-3 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5"
                 dangerouslySetInnerHTML={{ __html: template.introBody }}
               />
             </section>
 
             <section className="border-b border-border py-6">
-              <h2 className="font-headline text-h3 text-connect-blue">{template.staffTitle}</h2>
+              <h2 className="font-headline text-h3 text-ink">{template.staffTitle}</h2>
               <div
-                className="prose-quotation mt-3 text-body text-slate [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pl-5"
+                className="mt-3 text-body text-slate [&_p]:mb-3 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5"
                 dangerouslySetInnerHTML={{ __html: template.staffBody }}
               />
             </section>
@@ -92,9 +96,9 @@ export default function QuotationDocument({ reservationId }: { reservationId: st
         )}
 
         <section className="border-b border-border py-6">
-          <h2 className="font-headline text-h3 text-connect-blue">{reservation.serviceTitle}</h2>
+          <h2 className="font-headline text-h3 text-ink">{reservation.serviceTitle}</h2>
           <div
-            className="prose-quotation mt-3 text-body text-slate [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pl-5"
+            className="mt-3 text-body text-slate [&_p]:mb-3 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5"
             dangerouslySetInnerHTML={{ __html: reservation.serviceDescription }}
           />
           {reservation.serviceAssistance.length > 0 && (
@@ -107,42 +111,48 @@ export default function QuotationDocument({ reservationId }: { reservationId: st
         </section>
 
         <section className="py-6">
-          <h2 className="font-headline text-h3 text-connect-blue">Quote</h2>
-          <table className="mt-4 w-full border-collapse text-small">
-            <thead>
-              <tr className="border-b-2 border-ink text-left text-xs font-semibold uppercase tracking-wide text-slate">
-                <th className="py-2 pr-2">Service</th>
-                <th className="py-2 pr-2">Rate/Hr.</th>
-                <th className="py-2 pr-2">Dates</th>
-                <th className="py-2 pr-2">Total Hours</th>
-                <th className="py-2 text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b border-border">
-                <td className="py-2.5 pr-2">{reservation.serviceTitle}</td>
-                <td className="py-2.5 pr-2">{money(reservation.ratePerHour)}</td>
-                <td className="py-2.5 pr-2">
-                  {reservation.startDate} – {reservation.endDate}
-                  <span className="text-slate"> ({days} day{days === 1 ? '' : 's'})</span>
-                </td>
-                <td className="py-2.5 pr-2">{reservation.totalHours ?? '—'}</td>
-                <td className="py-2.5 text-right">{money(reservation.serviceAmount)}</td>
-              </tr>
-              <tr className="border-b border-border text-slate">
-                <td className="py-2.5 pr-2" colSpan={4}>
-                  HST ({reservation.hst}%)
-                </td>
-                <td className="py-2.5 text-right">{money(reservation.hstAmount)}</td>
-              </tr>
-              <tr className="text-body font-semibold text-ink">
-                <td className="py-3 pr-2" colSpan={4}>
-                  Total Service Fee
-                </td>
-                <td className="py-3 text-right text-connect-blue">{money(reservation.total)}</td>
-              </tr>
-            </tbody>
-          </table>
+          <h2 className="font-headline text-h3 text-ink">Quote</h2>
+
+          <div className="mt-4">
+            <QuotationSectionBar>Service</QuotationSectionBar>
+            <table className="w-full border-collapse text-small">
+              <thead>
+                <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-wide text-slate">
+                  <th className="py-2 pr-2">Service</th>
+                  <th className="py-2 pr-2">Rate/Hr.</th>
+                  <th className="py-2 pr-2">Days</th>
+                  <th className="py-2 pr-2">Total Hours</th>
+                  <th className="py-2 text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-border">
+                  <td className="py-2.5 pr-2">{reservation.serviceTitle}</td>
+                  <td className="py-2.5 pr-2">{money(reservation.ratePerHour)}</td>
+                  <td className="py-2.5 pr-2">
+                    {reservation.startDate} – {reservation.endDate}
+                  </td>
+                  <td className="py-2.5 pr-2">{reservation.totalHours ?? '—'}</td>
+                  <td className="py-2.5 text-right">{money(reservation.serviceAmount)}</td>
+                </tr>
+                <tr className="border-b border-border text-slate">
+                  <td className="py-2.5 pr-2">HST ({reservation.hst}%)</td>
+                  <td className="py-2.5 pr-2" />
+                  <td className="py-2.5 pr-2">{days} day{days === 1 ? '' : 's'}</td>
+                  <td className="py-2.5 pr-2" />
+                  <td className="py-2.5 text-right">{money(reservation.hstAmount)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-6">
+            <QuotationSectionBar>Total</QuotationSectionBar>
+            <div className="flex items-center justify-between py-3 text-body font-semibold text-ink">
+              <span>Total Service Fee</span>
+              <span>{money(reservation.total)}</span>
+            </div>
+          </div>
         </section>
 
         {template && (
