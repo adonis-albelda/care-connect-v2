@@ -27,12 +27,12 @@ export default function AdminSidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="flex h-screen w-64 flex-none flex-col border-r border-border bg-white">
+    <aside className="flex h-full w-64 flex-none flex-col border-r border-border bg-white">
       <div className="flex h-16 flex-none items-center gap-2 border-b border-border px-6">
         <span className="font-headline text-h3 text-connect-blue">Care Connect</span>
       </div>
 
-      <nav className="flex-1 overflow-y-auto p-3" aria-label="Admin">
+      <nav className="min-h-0 flex-1 overflow-y-auto p-3" aria-label="Admin">
         <ul className="flex flex-col gap-1">
           {NAV.map((item) => {
             const active = item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href)
