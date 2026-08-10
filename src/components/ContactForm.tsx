@@ -2,10 +2,19 @@
 
 import { useState, type FormEvent } from 'react'
 import { useMutation } from 'convex/react'
+import { Clock } from 'lucide-react'
 import { api } from '@convex/_generated/api'
 import FormField, { inputClass } from '@/components/FormField'
 import { useToast } from '@/lib/toast-context'
+import { useInquiryCooldown } from '@/hooks/useInquiryCooldown'
 import type { InquiryPayload } from '@/lib/types'
+
+function formatRemaining(ms: number) {
+  const totalSeconds = Math.ceil(ms / 1000)
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`
+}
 
 const INITIAL: InquiryPayload = {
   first_name: '',
@@ -22,9 +31,11 @@ function isValidEmail(email: string) {
 export default function ContactForm() {
   const { showSuccess, showError } = useToast()
   const createInquiry = useMutation(api.inquiries.create)
+  const { remainingMs, markSent } = useInquiryCooldown()
   const [inquiry, setInquiry] = useState<InquiryPayload>(INITIAL)
   const [errors, setErrors] = useState<Partial<Record<keyof InquiryPayload, string>>>({})
   const [isRequesting, setIsRequesting] = useState(false)
+  const onCooldown = remainingMs > 0
 
   const update = (field: keyof InquiryPayload) => (value: string) => setInquiry((i) => ({ ...i, [field]: value }))
 
@@ -40,7 +51,7 @@ export default function ContactForm() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!validate() || isRequesting) return
+    if (!validate() || isRequesting || onCooldown) return
     setIsRequesting(true)
 
     try {
@@ -51,6 +62,7 @@ export default function ContactForm() {
         phoneNumber: inquiry.phone_number,
         message: inquiry.message,
       })
+      markSent()
       showSuccess("Successfully submitted your inquiry — we'll contact you soon!")
       setInquiry(INITIAL)
       setErrors({})
@@ -63,6 +75,21 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+      {onCooldown && (
+        <div className="flex items-start gap-3 rounded-xl border border-border bg-cloud px-4 py-3">
+          <Clock className="mt-0.5 h-5 w-5 flex-none text-connect-blue" aria-hidden="true" />
+          <div>
+            <p className="text-body font-medium text-ink">
+              You can send another message in <span className="font-semibold text-connect-blue">{formatRemaining(remainingMs)}</span>
+            </p>
+            <p className="mt-0.5 text-small text-slate">
+              To keep things fair for everyone, we limit contact form submissions to one every 5 minutes per browser. Already sent
+              your message? We&rsquo;ll be in touch soon — no need to send it again.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField id="first_name" label="First name" required error={errors.first_name}>
           <input
@@ -119,10 +146,10 @@ export default function ContactForm() {
 
       <button
         type="submit"
-        disabled={isRequesting}
+        disabled={isRequesting || onCooldown}
         className="min-h-[48px] rounded-xl bg-connect-blue text-body font-semibold text-white shadow-card transition-all duration-250 hover:-translate-y-0.5 hover:bg-blue-deep hover:shadow-card-hover disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
       >
-        {isRequesting ? 'Sending…' : 'Send'}
+        {isRequesting ? 'Sending…' : onCooldown ? `Wait ${formatRemaining(remainingMs)}` : 'Send'}
       </button>
     </form>
   )
