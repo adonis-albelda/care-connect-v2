@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, type KeyboardEvent } from 'react'
+import { useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { useMutation } from 'convex/react'
-import { Plus, X } from 'lucide-react'
+import { ImagePlus, Plus, X } from 'lucide-react'
 import { api } from '@convex/_generated/api'
 import type { Doc } from '@convex/_generated/dataModel'
+import RichTextEditor from '@/components/admin/RichTextEditor'
 
 interface ServiceEditDrawerProps {
   service: Doc<'services'> | null
@@ -14,10 +15,8 @@ interface ServiceEditDrawerProps {
 
 interface FormState {
   title: string
-  slug: string
   shortDescription: string
   description: string
-  banner: string
   isActive: boolean
   assistance: string[]
 }
@@ -25,10 +24,8 @@ interface FormState {
 function toForm(service: Doc<'services'>): FormState {
   return {
     title: service.title,
-    slug: service.slug ?? '',
     shortDescription: service.shortDescription,
     description: service.description,
-    banner: service.banner ?? '',
     isActive: service.isActive,
     assistance: service.assistance ?? [],
   }
@@ -39,7 +36,7 @@ export default function ServiceEditDrawer({ service, onOpenChange }: ServiceEdit
     <Dialog.Root open={service !== null} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[90] bg-ink/45 backdrop-blur-sm" />
-        <Dialog.Content className="admin-drawer fixed inset-y-0 right-0 z-[91] flex w-full max-w-2xl flex-col bg-white shadow-card-hover focus:outline-none">
+        <Dialog.Content className="admin-drawer fixed inset-y-0 right-0 z-[91] flex w-full max-w-4xl flex-col bg-white shadow-card-hover focus:outline-none">
           {/* Keyed by service id: remounts fresh local state per row instead
               of syncing via an effect when the selected service changes. */}
           {service && <ServiceEditForm key={service._id} service={service} onClose={() => onOpenChange(false)} />}
@@ -51,10 +48,16 @@ export default function ServiceEditDrawer({ service, onOpenChange }: ServiceEdit
 
 function ServiceEditForm({ service, onClose }: { service: Doc<'services'>; onClose: () => void }) {
   const updateService = useMutation(api.services.update)
+  const generateUploadUrl = useMutation(api.services.generateUploadUrl)
+  const setBanner = useMutation(api.services.setBanner)
+
   const [form, setForm] = useState<FormState>(() => toForm(service))
+  const [banner, setBannerPreview] = useState(service.banner ?? '')
   const [activityInput, setActivityInput] = useState('')
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const addActivity = () => {
     const value = activityInput.trim()
@@ -78,6 +81,27 @@ function ServiceEditForm({ service, onClose }: { service: Doc<'services'>; onClo
     }
   }
 
+  const handlePhotoSelect = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+
+    setUploading(true)
+    setError(null)
+    try {
+      const uploadUrl = await generateUploadUrl()
+      const res = await fetch(uploadUrl, { method: 'POST', headers: { 'Content-Type': file.type }, body: file })
+      if (!res.ok) throw new Error('upload failed')
+      const { storageId } = await res.json()
+      const url = await setBanner({ id: service._id, storageId })
+      setBannerPreview(url ?? '')
+    } catch {
+      setError("That photo didn't upload — try again.")
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const handleSave = async () => {
     if (saving) return
     setSaving(true)
@@ -86,10 +110,8 @@ function ServiceEditForm({ service, onClose }: { service: Doc<'services'>; onClo
       await updateService({
         id: service._id,
         title: form.title,
-        slug: form.slug || undefined,
         shortDescription: form.shortDescription,
         description: form.description,
-        banner: form.banner || undefined,
         isActive: form.isActive,
         assistance: form.assistance,
       })
@@ -120,84 +142,88 @@ function ServiceEditForm({ service, onClose }: { service: Doc<'services'>; onClo
       </div>
 
       <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-8">
-        <div className="flex items-center justify-between rounded-xl border border-border px-4 py-3">
+        <div className="grid gap-6 lg:grid-cols-[16rem_1fr]">
           <div>
-            <p className="text-small font-medium text-ink">Status</p>
-            <p className="text-xs text-slate">Visible on the public site when active.</p>
+            <span className="text-small font-medium text-ink">Photo</span>
+            <div className="mt-2 aspect-video w-full overflow-hidden rounded-lg border border-border bg-cloud">
+              {banner ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={banner} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-mist">
+                  <ImagePlus className="h-8 w-8" aria-hidden="true" />
+                </div>
+              )}
+            </div>
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoSelect} />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="mt-2 flex min-h-[40px] w-full items-center justify-center gap-2 rounded-lg border border-border text-small font-semibold text-slate transition-colors duration-250 hover:border-connect-blue hover:text-connect-blue disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <ImagePlus className="h-4 w-4" aria-hidden="true" />
+              {uploading ? 'Uploading…' : 'Update photo'}
+            </button>
+
+            <div className="mt-6 flex items-center justify-between rounded-xl border border-border px-4 py-3">
+              <div>
+                <p className="text-small font-medium text-ink">Status</p>
+                <p className="text-xs text-slate">Visible when active.</p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={form.isActive}
+                onClick={() => setForm({ ...form, isActive: !form.isActive })}
+                className={`relative h-7 w-12 flex-none rounded-full transition-colors duration-250 ${
+                  form.isActive ? 'bg-connect-blue' : 'bg-border'
+                }`}
+              >
+                <span
+                  className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-card transition-transform duration-250 ${
+                    form.isActive ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={form.isActive}
-            onClick={() => setForm({ ...form, isActive: !form.isActive })}
-            className={`relative h-7 w-12 flex-none rounded-full transition-colors duration-250 ${
-              form.isActive ? 'bg-connect-blue' : 'bg-border'
-            }`}
-          >
-            <span
-              className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow-card transition-transform duration-250 ${
-                form.isActive ? 'translate-x-6' : 'translate-x-1'
-              }`}
-            />
-          </button>
+
+          <div>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-small font-medium text-ink">Title</span>
+              <input
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                className="min-h-[44px] rounded-lg border border-border px-3 text-small text-ink focus:border-connect-blue focus:outline-none"
+              />
+            </label>
+
+            <div className="mt-5">
+              <span className="text-small font-medium text-ink">Short description</span>
+              <div className="mt-1.5">
+                <RichTextEditor
+                  value={form.shortDescription}
+                  onChange={(html) => setForm({ ...form, shortDescription: html })}
+                  minHeightRem={4}
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="mt-5 grid gap-5 sm:grid-cols-2">
-          <label className="flex flex-col gap-1.5">
-            <span className="text-small font-medium text-ink">Title</span>
-            <input
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="min-h-[44px] rounded-lg border border-border px-3 text-small text-ink focus:border-connect-blue focus:outline-none"
-            />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-small font-medium text-ink">Slug</span>
-            <input
-              value={form.slug}
-              onChange={(e) => setForm({ ...form, slug: e.target.value })}
-              className="min-h-[44px] rounded-lg border border-border px-3 font-mono text-small text-ink focus:border-connect-blue focus:outline-none"
-            />
-          </label>
-        </div>
-
-        <label className="mt-5 flex flex-col gap-1.5">
-          <span className="text-small font-medium text-ink">Short description</span>
-          <textarea
-            value={form.shortDescription}
-            onChange={(e) => setForm({ ...form, shortDescription: e.target.value })}
-            rows={2}
-            className="rounded-lg border border-border px-3 py-2 text-small text-ink focus:border-connect-blue focus:outline-none"
-          />
-        </label>
-
-        <label className="mt-5 flex flex-col gap-1.5">
+        <div className="mt-6">
           <span className="text-small font-medium text-ink">Full description</span>
-          <textarea
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            rows={6}
-            className="rounded-lg border border-border px-3 py-2 text-small text-ink focus:border-connect-blue focus:outline-none"
-          />
-        </label>
-
-        <label className="mt-5 flex flex-col gap-1.5">
-          <span className="text-small font-medium text-ink">Banner image URL</span>
-          <input
-            value={form.banner}
-            onChange={(e) => setForm({ ...form, banner: e.target.value })}
-            placeholder="https://…"
-            className="min-h-[44px] rounded-lg border border-border px-3 text-small text-ink focus:border-connect-blue focus:outline-none"
-          />
-        </label>
-        {form.banner && (
-          <div className="mt-3 h-32 w-full overflow-hidden rounded-lg border border-border bg-cloud">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={form.banner} alt="" className="h-full w-full object-cover" />
+          <div className="mt-1.5">
+            <RichTextEditor
+              value={form.description}
+              onChange={(html) => setForm({ ...form, description: html })}
+              minHeightRem={9}
+            />
           </div>
-        )}
+        </div>
 
-        <div className="mt-5">
+        <div className="mt-6">
           <span className="text-small font-medium text-ink">Activities</span>
           <p className="mt-0.5 text-xs text-slate">What&rsquo;s included with this service — press Enter to add.</p>
           <div className="mt-2 flex gap-2">
