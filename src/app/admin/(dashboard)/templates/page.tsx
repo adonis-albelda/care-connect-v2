@@ -6,6 +6,8 @@ import { useQuery, useMutation } from 'convex/react'
 import { Printer } from 'lucide-react'
 import { api } from '@convex/_generated/api'
 import RichTextEditor from '@/components/admin/RichTextEditor'
+import QuotationSection from '@/components/admin/QuotationSection'
+import QuotationSocialRow from '@/components/admin/QuotationSocialRow'
 import { isConvexConfigured } from '@/lib/convex-client'
 
 interface FormState {
@@ -13,6 +15,12 @@ interface FormState {
   introBody: string
   staffTitle: string
   staffBody: string
+  homeSupportTitle: string
+  homeSupportBody: string
+  personalCareTitle: string
+  personalCareBody: string
+  complexCareTitle: string
+  complexCareBody: string
   contactEmail: string
   contactPhone: string
   contactAddress: string
@@ -39,11 +47,65 @@ const DEFAULTS: FormState = {
 <p>Ms. Rojas assists in office administration including client assessments, payroll, general accounting, scheduling, employee background checks, and writing customer reports.</p>
 <p>Ms. Rojas has been in the medical profession as a Health Care Aide since 2010, bringing experience and expertise in caring for seniors.</p>
 `.trim(),
+  homeSupportTitle: 'Home Support Services',
+  homeSupportBody: `
+<p>Home support services include assistance with day-to-day activities such as:</p>
+<ul>
+<li>Light housekeeping &amp; laundry</li>
+<li>Meal preparation &amp; planning</li>
+<li>Companionship and community outings</li>
+<li>Light yard work</li>
+<li>Grocery shopping and errands</li>
+<li>Accompaniment to doctor or other health care appointments</li>
+<li>Pet care</li>
+<li>Incidental transportation</li>
+<li>Home safety, sorting mail, cleaning cupboards, fridge cleaning</li>
+<li>Coordination of home and yard repair or maintenance services</li>
+<li>Coordination for installation of in-home assistance devices</li>
+<li>Coordination of services and referrals to other community agencies if required</li>
+</ul>
+<p>We offer the option of live-in caregivers for short or long term placements.</p>
+`.trim(),
+  personalCareTitle: 'Personal Care Services',
+  personalCareBody: `
+<p>Personal care includes assistance with the private activities of daily living such as:</p>
+<ul>
+<li>Dressing, bathing, grooming</li>
+<li>Mobility and toileting</li>
+<li>Continence assistance</li>
+<li>Medication reminders</li>
+<li>Alzheimer &amp; dementia support</li>
+<li>Respite care</li>
+<li>Overnight care</li>
+</ul>
+<p>Trained and certified Personal Support Workers provide all personal support services.</p>
+`.trim(),
+  complexCareTitle: 'Complex Care Services',
+  complexCareBody: `
+<p>Complex care refers to services that must be performed by a regulated health professional such as a Registered Practical Nurse:</p>
+<ul>
+<li>Medication administration</li>
+<li>Vital signs monitoring</li>
+<li>Wound care</li>
+<li>Catheter care</li>
+<li>Foot care</li>
+<li>Ostomy care</li>
+<li>Palliative care</li>
+</ul>
+`.trim(),
   contactEmail: 'admin@ucarecon.ca',
   contactPhone: '416-262-4071',
   contactAddress: '120 Shelborne North York On. Canada M6B 1M7',
   footerNote: 'Care that comes to you',
 }
+
+const SECTION_FIELDS: { key: 'intro' | 'staff' | 'homeSupport' | 'personalCare' | 'complexCare'; label: string }[] = [
+  { key: 'intro', label: 'Company introduction' },
+  { key: 'staff', label: 'Team / staff' },
+  { key: 'homeSupport', label: 'Home support services' },
+  { key: 'personalCare', label: 'Personal care services' },
+  { key: 'complexCare', label: 'Complex care services' },
+]
 
 export default function TemplatesPage() {
   const template = useQuery(api.quotationTemplate.get, isConvexConfigured ? {} : 'skip')
@@ -119,37 +181,29 @@ function TemplateForm({
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <div className="max-w-2xl rounded-2xl border border-border bg-white p-6 shadow-card print:hidden sm:p-8">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate">Company introduction</p>
-          <label className="mt-3 flex flex-col gap-1.5">
-            <span className="text-small font-medium text-ink">Section title</span>
-            <input
-              value={form.introTitle}
-              onChange={(e) => set('introTitle')(e.target.value)}
-              className="min-h-[44px] rounded-lg border border-border px-3 text-small text-ink focus:border-connect-blue focus:outline-none"
-            />
-          </label>
-          <div className="mt-4">
-            <span className="text-small font-medium text-ink">Body</span>
-            <div className="mt-1.5">
-              <RichTextEditor value={form.introBody} onChange={set('introBody')} minHeightRem={7} />
-            </div>
-          </div>
-
-          <p className="mt-8 text-xs font-semibold uppercase tracking-wide text-slate">Team / staff</p>
-          <label className="mt-3 flex flex-col gap-1.5">
-            <span className="text-small font-medium text-ink">Section title</span>
-            <input
-              value={form.staffTitle}
-              onChange={(e) => set('staffTitle')(e.target.value)}
-              className="min-h-[44px] rounded-lg border border-border px-3 text-small text-ink focus:border-connect-blue focus:outline-none"
-            />
-          </label>
-          <div className="mt-4">
-            <span className="text-small font-medium text-ink">Body</span>
-            <div className="mt-1.5">
-              <RichTextEditor value={form.staffBody} onChange={set('staffBody')} minHeightRem={7} />
-            </div>
-          </div>
+          {SECTION_FIELDS.map(({ key, label }, i) => {
+            const titleKey = `${key}Title` as keyof FormState
+            const bodyKey = `${key}Body` as keyof FormState
+            return (
+              <div key={key} className={i > 0 ? 'mt-8' : undefined}>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate">{label}</p>
+                <label className="mt-3 flex flex-col gap-1.5">
+                  <span className="text-small font-medium text-ink">Section title</span>
+                  <input
+                    value={form[titleKey]}
+                    onChange={(e) => set(titleKey)(e.target.value)}
+                    className="min-h-[44px] rounded-lg border border-border px-3 text-small text-ink focus:border-connect-blue focus:outline-none"
+                  />
+                </label>
+                <div className="mt-4">
+                  <span className="text-small font-medium text-ink">Body</span>
+                  <div className="mt-1.5">
+                    <RichTextEditor value={form[bodyKey]} onChange={set(bodyKey)} minHeightRem={7} />
+                  </div>
+                </div>
+              </div>
+            )
+          })}
 
           <p className="mt-8 text-xs font-semibold uppercase tracking-wide text-slate">Contact footer</p>
           <div className="mt-3 grid gap-4 sm:grid-cols-2">
@@ -220,21 +274,11 @@ function TemplatePreview({ form }: { form: FormState }) {
         </div>
       </header>
 
-      <section className="border-b border-border py-6">
-        <h2 className="font-headline text-h3 text-ink">{form.introTitle}</h2>
-        <div
-          className="mt-3 text-small text-slate [&_p]:mb-3 [&_p:last-child]:mb-0"
-          dangerouslySetInnerHTML={{ __html: form.introBody }}
-        />
-      </section>
-
-      <section className="border-b border-border py-6">
-        <h2 className="font-headline text-h3 text-ink">{form.staffTitle}</h2>
-        <div
-          className="mt-3 text-small text-slate [&_p]:mb-3 [&_p:last-child]:mb-0"
-          dangerouslySetInnerHTML={{ __html: form.staffBody }}
-        />
-      </section>
+      <QuotationSection title={form.introTitle} body={form.introBody} />
+      <QuotationSection title={form.staffTitle} body={form.staffBody} />
+      <QuotationSection title={form.homeSupportTitle} body={form.homeSupportBody} />
+      <QuotationSection title={form.personalCareTitle} body={form.personalCareBody} />
+      <QuotationSection title={form.complexCareTitle} body={form.complexCareBody} />
 
       <footer className="pt-6 text-center text-small text-slate">
         <p className="font-medium text-ink">Care Connect — {form.footerNote}</p>
@@ -242,6 +286,7 @@ function TemplatePreview({ form }: { form: FormState }) {
           {form.contactEmail} · {form.contactPhone}
         </p>
         <p>{form.contactAddress}</p>
+        <QuotationSocialRow />
       </footer>
     </article>
   )

@@ -4,9 +4,10 @@ import { useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { useMutation } from 'convex/react'
 import { differenceInCalendarDays } from 'date-fns'
-import { X } from 'lucide-react'
+import { Eye, X } from 'lucide-react'
 import type { FunctionReturnType } from 'convex/server'
 import { api } from '@convex/_generated/api'
+import QuotationDocument from '@/components/admin/QuotationDocument'
 
 type ReservationRow = FunctionReturnType<typeof api.reservations.list>[number]
 
@@ -73,6 +74,7 @@ function SendQuoteForm({ reservation, onClose }: { reservation: ReservationRow; 
   const [rate, setRate] = useState('')
   const [hstPercent, setHstPercent] = useState('13')
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -208,6 +210,15 @@ function SendQuoteForm({ reservation, onClose }: { reservation: ReservationRow; 
           >
             Send Quotation
           </button>
+          <button
+            type="button"
+            onClick={() => setPreviewOpen(true)}
+            disabled={!rateValue}
+            className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-xl border border-border text-body font-medium text-slate transition-colors duration-250 hover:border-connect-blue hover:text-connect-blue disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Eye className="h-4 w-4" aria-hidden="true" />
+            Preview Quotation
+          </button>
           <Dialog.Close asChild>
             <button
               type="button"
@@ -218,6 +229,40 @@ function SendQuoteForm({ reservation, onClose }: { reservation: ReservationRow; 
           </Dialog.Close>
         </div>
       </div>
+
+      <Dialog.Root open={previewOpen} onOpenChange={setPreviewOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-[92] bg-ink/55 backdrop-blur-sm" />
+          <Dialog.Content className="fixed left-1/2 top-1/2 z-[93] flex h-[90vh] w-[calc(100%-2rem)] max-w-4xl -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl bg-cloud shadow-card-hover focus:outline-none">
+            <div className="flex items-center justify-between border-b border-border bg-white px-6 py-4">
+              <Dialog.Title className="font-headline text-h3 text-connect-blue">Quotation preview</Dialog.Title>
+              <Dialog.Close asChild>
+                <button
+                  type="button"
+                  aria-label="Close"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-mist transition-colors duration-250 hover:bg-cloud hover:text-ink"
+                >
+                  <X className="h-5 w-5" aria-hidden="true" />
+                </button>
+              </Dialog.Close>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6">
+              <QuotationDocument
+                reservationId={reservation._id}
+                pricingOverride={{
+                  ratePerHour: rateValue,
+                  hst: hstPercent,
+                  hstAmount,
+                  serviceAmount: subtotal,
+                  total: grandTotal,
+                  totalHours,
+                  totalDays: days,
+                }}
+              />
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
 
       <Dialog.Root open={confirmOpen} onOpenChange={setConfirmOpen}>
         <Dialog.Portal>

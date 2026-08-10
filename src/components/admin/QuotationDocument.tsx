@@ -8,6 +8,8 @@ import { api } from '@convex/_generated/api'
 import type { Id } from '@convex/_generated/dataModel'
 import { isConvexConfigured } from '@/lib/convex-client'
 import QuotationSectionBar from '@/components/admin/QuotationSectionBar'
+import QuotationSection from '@/components/admin/QuotationSection'
+import QuotationSocialRow from '@/components/admin/QuotationSocialRow'
 
 function money(value?: number) {
   return value != null ? `$${value.toFixed(2)}` : '—'
@@ -20,7 +22,26 @@ function dayCount(startDate: string, endDate: string) {
   return Math.max(differenceInCalendarDays(end, start) + 1, 1)
 }
 
-export default function QuotationDocument({ reservationId }: { reservationId: string }) {
+export interface QuotationPricing {
+  ratePerHour: number
+  hst: string
+  hstAmount: number
+  serviceAmount: number
+  total: number
+  totalHours: number
+  totalDays: number
+}
+
+interface QuotationDocumentProps {
+  reservationId: string
+  // Unsaved draft numbers from SendQuoteDrawer, before the admin actually
+  // sends the quote — lets "Preview quotation" show exactly what the client
+  // will get without writing to the reservation first.
+  pricingOverride?: QuotationPricing
+  hideActions?: boolean
+}
+
+export default function QuotationDocument({ reservationId, pricingOverride, hideActions }: QuotationDocumentProps) {
   const reservation = useQuery(
     api.reservations.getForQuotation,
     isConvexConfigured ? { id: reservationId as Id<'reservations'> } : 'skip'
@@ -35,21 +56,33 @@ export default function QuotationDocument({ reservationId }: { reservationId: st
     return <p className="p-8 text-body text-error">Reservation not found.</p>
   }
 
-  const days = dayCount(reservation.startDate, reservation.endDate)
+  const pricing: QuotationPricing = pricingOverride ?? {
+    ratePerHour: reservation.ratePerHour ?? 0,
+    hst: reservation.hst,
+    hstAmount: reservation.hstAmount ?? 0,
+    serviceAmount: reservation.serviceAmount ?? 0,
+    total: reservation.total ?? 0,
+    totalHours: reservation.totalHours ?? 0,
+    totalDays: reservation.totalDays ?? dayCount(reservation.startDate, reservation.endDate),
+  }
 
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="mb-6 flex items-center justify-between print:hidden">
-        <p className="text-small text-slate">Print preview — use your browser&rsquo;s print dialog to save as PDF.</p>
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="flex min-h-[44px] items-center gap-2 rounded-xl bg-connect-blue px-5 text-small font-semibold text-white shadow-card transition-all duration-250 hover:-translate-y-0.5 hover:bg-blue-deep hover:shadow-card-hover"
-        >
-          <Printer className="h-4 w-4" aria-hidden="true" />
-          Download PDF
-        </button>
-      </div>
+      {!hideActions && (
+        <div className="mb-6 flex items-center justify-between print:hidden">
+          <p className="text-small text-slate">
+            {pricingOverride ? "Preview — this quote hasn't been sent yet." : "Print preview — use your browser's print dialog to save as PDF."}
+          </p>
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="flex min-h-[44px] items-center gap-2 rounded-xl bg-connect-blue px-5 text-small font-semibold text-white shadow-card transition-all duration-250 hover:-translate-y-0.5 hover:bg-blue-deep hover:shadow-card-hover"
+          >
+            <Printer className="h-4 w-4" aria-hidden="true" />
+            Download PDF
+          </button>
+        </div>
+      )}
 
       <article className="rounded-2xl border border-border bg-white p-8 text-ink shadow-card print:rounded-none print:border-none print:p-0 print:shadow-none sm:p-12">
         <header className="flex items-center justify-between border-b border-border pb-6">
@@ -77,21 +110,11 @@ export default function QuotationDocument({ reservationId }: { reservationId: st
 
         {template && (
           <>
-            <section className="border-b border-border py-6">
-              <h2 className="font-headline text-h3 text-ink">{template.introTitle}</h2>
-              <div
-                className="mt-3 text-body text-slate [&_p]:mb-3 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5"
-                dangerouslySetInnerHTML={{ __html: template.introBody }}
-              />
-            </section>
-
-            <section className="border-b border-border py-6">
-              <h2 className="font-headline text-h3 text-ink">{template.staffTitle}</h2>
-              <div
-                className="mt-3 text-body text-slate [&_p]:mb-3 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5"
-                dangerouslySetInnerHTML={{ __html: template.staffBody }}
-              />
-            </section>
+            <QuotationSection title={template.introTitle} body={template.introBody} />
+            <QuotationSection title={template.staffTitle} body={template.staffBody} />
+            <QuotationSection title={template.homeSupportTitle} body={template.homeSupportBody} />
+            <QuotationSection title={template.personalCareTitle} body={template.personalCareBody} />
+            <QuotationSection title={template.complexCareTitle} body={template.complexCareBody} />
           </>
         )}
 
@@ -128,19 +151,21 @@ export default function QuotationDocument({ reservationId }: { reservationId: st
               <tbody>
                 <tr className="border-b border-border">
                   <td className="py-2.5 pr-2">{reservation.serviceTitle}</td>
-                  <td className="py-2.5 pr-2">{money(reservation.ratePerHour)}</td>
+                  <td className="py-2.5 pr-2">{money(pricing.ratePerHour)}</td>
                   <td className="py-2.5 pr-2">
                     {reservation.startDate} – {reservation.endDate}
                   </td>
-                  <td className="py-2.5 pr-2">{reservation.totalHours ?? '—'}</td>
-                  <td className="py-2.5 text-right">{money(reservation.serviceAmount)}</td>
+                  <td className="py-2.5 pr-2">{pricing.totalHours}</td>
+                  <td className="py-2.5 text-right">{money(pricing.serviceAmount)}</td>
                 </tr>
                 <tr className="border-b border-border text-slate">
-                  <td className="py-2.5 pr-2">HST ({reservation.hst}%)</td>
+                  <td className="py-2.5 pr-2">HST ({pricing.hst}%)</td>
                   <td className="py-2.5 pr-2" />
-                  <td className="py-2.5 pr-2">{days} day{days === 1 ? '' : 's'}</td>
+                  <td className="py-2.5 pr-2">
+                    {pricing.totalDays} day{pricing.totalDays === 1 ? '' : 's'}
+                  </td>
                   <td className="py-2.5 pr-2" />
-                  <td className="py-2.5 text-right">{money(reservation.hstAmount)}</td>
+                  <td className="py-2.5 text-right">{money(pricing.hstAmount)}</td>
                 </tr>
               </tbody>
             </table>
@@ -150,7 +175,7 @@ export default function QuotationDocument({ reservationId }: { reservationId: st
             <QuotationSectionBar>Total</QuotationSectionBar>
             <div className="flex items-center justify-between py-3 text-body font-semibold text-ink">
               <span>Total Service Fee</span>
-              <span>{money(reservation.total)}</span>
+              <span>{money(pricing.total)}</span>
             </div>
           </div>
         </section>
@@ -162,6 +187,7 @@ export default function QuotationDocument({ reservationId }: { reservationId: st
               {template.contactEmail} · {template.contactPhone}
             </p>
             <p>{template.contactAddress}</p>
+            <QuotationSocialRow />
           </footer>
         )}
       </article>
