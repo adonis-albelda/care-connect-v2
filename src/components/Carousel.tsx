@@ -14,9 +14,17 @@ export default function Carousel<T extends { id?: number | string }>({
   ariaLabel,
 }: CarouselProps<T>) {
   const trackRef = useRef<HTMLDivElement>(null)
+  const isFirstRender = useRef(true)
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
+    // Skip on mount — scrolling the carousel's own track into view can
+    // still drag the whole page down to it if the section starts off
+    // below the fold. Only scroll in response to an actual index change.
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
     const node = trackRef.current
     if (!node) return
     const child = node.children[index]
