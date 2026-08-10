@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { differenceInCalendarDays } from 'date-fns'
 import ServiceSelect from '@/components/ServiceSelect'
 import DateRangeField from '@/components/DateRangeField'
@@ -37,6 +37,16 @@ export default function QuoteWidget() {
 
   const selectedService = services.find((s) => s.id === booking.serviceId)
   const days = dayCount(booking.dateRange)
+
+  useEffect(() => {
+    if (!booking.autoConfirm) return
+    const id = setTimeout(() => {
+      setConfirmOpen(true)
+      booking.clearAutoConfirm()
+    }, 0)
+    return () => clearTimeout(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [booking.autoConfirm])
 
   const handleConfirm = async () => {
     const success = await booking.submit()

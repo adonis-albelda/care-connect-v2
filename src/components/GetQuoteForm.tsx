@@ -62,6 +62,16 @@ export default function GetQuoteForm({ preselectServiceSlug }: GetQuoteFormProps
   }
 
   useEffect(() => {
+    if (!booking.autoConfirm) return
+    const id = setTimeout(() => {
+      setConfirmOpen(true)
+      booking.clearAutoConfirm()
+    }, 0)
+    return () => clearTimeout(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [booking.autoConfirm])
+
+  useEffect(() => {
     if (!preselectServiceSlug || !services.length) return
     const match = services.find((s) => s.slug === preselectServiceSlug)
     if (match) booking.setServiceId(match.id)
