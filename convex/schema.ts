@@ -90,6 +90,10 @@ export default defineSchema({
     emailAddress: v.string(),
     phoneNumber: v.string(),
     message: v.string(),
+    // Convex can't send email itself — reply is saved here as a record and
+    // handed to the admin's own mail client (mailto:) to actually send.
+    reply: v.optional(v.string()),
+    repliedAt: v.optional(v.number()),
   }),
 
   forms: defineTable({

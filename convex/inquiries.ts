@@ -10,6 +10,17 @@ export const list = query({
   },
 })
 
+// Admin — record a reply. Convex has no outbound email, so this just saves
+// the reply as a record; the drawer hands the actual send off to the
+// admin's own mail client.
+export const reply = mutation({
+  args: { id: v.id('inquiries'), reply: v.string() },
+  handler: async (ctx, { id, reply }) => {
+    await requireAdmin(ctx)
+    await ctx.db.patch(id, { reply, repliedAt: Date.now() })
+  },
+})
+
 // Public — no auth. The contact form is open to anonymous site visitors.
 export const create = mutation({
   args: {
