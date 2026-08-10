@@ -10,6 +10,7 @@ import {
   MessageSquare,
   FileText,
   Star,
+  FileEdit,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -21,13 +22,14 @@ const NAV: { href: string; label: string; icon: LucideIcon }[] = [
   { href: '/admin/inquiries', label: 'Inquiries', icon: MessageSquare },
   { href: '/admin/forms', label: 'Forms', icon: FileText },
   { href: '/admin/testimonials', label: 'Testimonials', icon: Star },
+  { href: '/admin/templates', label: 'Templates', icon: FileEdit },
 ]
 
 export default function AdminSidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="flex h-full w-64 flex-none flex-col border-r border-border bg-white">
+    <aside className="flex h-full w-64 flex-none flex-col border-r border-border bg-white print:hidden">
       <div className="flex h-16 flex-none items-center gap-2 border-b border-border px-6">
         <span className="font-headline text-h3 text-connect-blue">Care Connect</span>
       </div>

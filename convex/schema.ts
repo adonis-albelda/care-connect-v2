@@ -109,4 +109,18 @@ export default defineSchema({
     status: v.union(v.literal('pending'), v.literal('approved')),
     approver: v.optional(v.id('users')),
   }).index('by_client', ['clientId']),
+
+  // Singleton (one row) — the editable boilerplate text used on the printed
+  // quotation document. Quoted service details and pricing come from
+  // services/reservations instead of being duplicated here.
+  quotationTemplates: defineTable({
+    introTitle: v.string(),
+    introBody: v.string(),
+    staffTitle: v.string(),
+    staffBody: v.string(),
+    contactEmail: v.string(),
+    contactPhone: v.string(),
+    contactAddress: v.string(),
+    footerNote: v.string(),
+  }),
 })

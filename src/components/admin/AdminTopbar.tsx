@@ -14,7 +14,7 @@ export default function AdminTopbar() {
   }
 
   return (
-    <header className="flex h-16 flex-none items-center justify-end gap-4 border-b border-border bg-white px-6">
+    <header className="flex h-16 flex-none items-center justify-end gap-4 border-b border-border bg-white px-6 print:hidden">
       {user && <AdminUserMenu user={user} onSignOut={handleSignOut} />}
     </header>
   )

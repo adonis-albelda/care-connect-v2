@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useQuery } from 'convex/react'
 import type { FunctionReturnType } from 'convex/server'
-import { CalendarCheck, DollarSign, Clock, Send } from 'lucide-react'
+import { CalendarCheck, DollarSign, Clock, Send, FileText } from 'lucide-react'
 import { api } from '@convex/_generated/api'
 import DataTable, { type Column } from '@/components/admin/DataTable'
 import SendQuoteDrawer from '@/components/admin/SendQuoteDrawer'
@@ -46,7 +47,14 @@ export default function ReservationsPage() {
       label: 'Actions',
       render: (r) =>
         r.status === 'quoted' ? (
-          <span className="text-xs text-mist">Quoted</span>
+          <Link
+            href={`/admin/reservations/${r._id}/quotation`}
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-slate transition-colors duration-250 hover:border-connect-blue hover:text-connect-blue"
+          >
+            <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+            View Quotation
+          </Link>
         ) : (
           <button
             type="button"

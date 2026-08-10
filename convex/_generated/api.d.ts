@@ -14,6 +14,7 @@ import type * as clients from "../clients.js";
 import type * as forms from "../forms.js";
 import type * as http from "../http.js";
 import type * as inquiries from "../inquiries.js";
+import type * as quotationTemplate from "../quotationTemplate.js";
 import type * as reservations from "../reservations.js";
 import type * as seed from "../seed.js";
 import type * as seedMutations from "../seedMutations.js";
@@ -34,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   forms: typeof forms;
   http: typeof http;
   inquiries: typeof inquiries;
+  quotationTemplate: typeof quotationTemplate;
   reservations: typeof reservations;
   seed: typeof seed;
   seedMutations: typeof seedMutations;

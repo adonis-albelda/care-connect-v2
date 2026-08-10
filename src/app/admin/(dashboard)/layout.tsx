@@ -26,11 +26,11 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden print:h-auto print:overflow-visible">
       <AdminSidebar />
-      <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col print:min-h-0">
         <AdminTopbar />
-        <main className="min-h-0 flex-1 overflow-y-auto p-6 sm:p-8">
+        <main className="min-h-0 flex-1 overflow-y-auto p-6 sm:p-8 print:overflow-visible print:p-0">
           <PageTransition>{children}</PageTransition>
         </main>
       </div>

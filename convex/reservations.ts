@@ -24,6 +24,37 @@ export const list = query({
   },
 })
 
+// Admin — full detail for the printable quotation document: the reservation
+// plus the quoted service's own title/description/activities and the
+// client's name, none of which the list query above needs.
+export const getForQuotation = query({
+  args: { id: v.id('reservations') },
+  handler: async (ctx, { id }) => {
+    await requireAdmin(ctx)
+    const reservation = await ctx.db.get(id)
+    if (!reservation) return null
+
+    const [service, client, clientProfile] = await Promise.all([
+      ctx.db.get(reservation.serviceId),
+      ctx.db.get(reservation.clientId),
+      ctx.db
+        .query('clientProfiles')
+        .withIndex('by_user', (q) => q.eq('userId', reservation.clientId))
+        .unique(),
+    ])
+
+    return {
+      ...reservation,
+      status: reservation.status ?? 'pending',
+      serviceTitle: service?.title ?? 'Unknown service',
+      serviceDescription: service?.description ?? '',
+      serviceAssistance: service?.assistance ?? [],
+      clientEmail: client?.email ?? reservation.email ?? '',
+      clientName: [clientProfile?.firstName, clientProfile?.lastName].filter(Boolean).join(' '),
+    }
+  },
+})
+
 // Admin — price a pending reservation and send the quote. Moves it from
 // pending to quoted; nothing else about the request is editable here.
 export const sendQuote = mutation({
