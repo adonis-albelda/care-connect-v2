@@ -3,22 +3,35 @@ import { query, mutation } from './_generated/server'
 import { requireAdmin, requireAuth } from './authHelpers'
 import { getAuthUserId } from '@convex-dev/auth/server'
 
+// Source of truth is `users`, not `clientProfiles` — a client who signs up
+// via OAuth never calls upsertProfile (only the password signUp flow does),
+// so they'd have no clientProfiles row and silently never show up here.
+// clientProfiles is joined in for the extra fields when present.
 export const list = query({
   args: {},
   handler: async (ctx) => {
     await requireAdmin(ctx)
-    const profiles = await ctx.db.query('clientProfiles').order('desc').collect()
+    const [users, adminProfiles] = await Promise.all([
+      ctx.db.query('users').order('desc').collect(),
+      ctx.db.query('adminProfiles').collect(),
+    ])
+    const adminUserIds = new Set(adminProfiles.map((p) => p.userId))
+    const clientUsers = users.filter((u) => !adminUserIds.has(u._id))
+
     return Promise.all(
-      profiles.map(async (profile) => {
-        const user = await ctx.db.get(profile.userId)
+      clientUsers.map(async (user) => {
+        const profile = await ctx.db
+          .query('clientProfiles')
+          .withIndex('by_user', (q) => q.eq('userId', user._id))
+          .unique()
         return {
-          _id: profile._id,
-          _creationTime: profile._creationTime,
-          firstName: profile.firstName ?? '',
-          lastName: profile.lastName,
-          phoneNumber: profile.phoneNumber,
-          status: profile.status,
-          email: user?.email ?? '',
+          _id: user._id,
+          _creationTime: user._creationTime,
+          firstName: profile?.firstName ?? '',
+          lastName: profile?.lastName,
+          phoneNumber: profile?.phoneNumber,
+          status: profile?.status ?? true,
+          email: user.email ?? '',
         }
       })
     )
