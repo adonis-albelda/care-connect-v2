@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { ChevronRight, Search } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -40,6 +40,7 @@ export default function DataTable<T extends { _id: React.Key }>({
   summary,
   searchPlaceholder = 'Search…',
   onRowClick,
+  actions,
 }: {
   title: string
   description: string
@@ -51,14 +52,20 @@ export default function DataTable<T extends { _id: React.Key }>({
   summary?: SummaryCard[]
   searchPlaceholder?: string
   onRowClick?: (row: T) => void
+  actions?: ReactNode
 }) {
   const [query, setQuery] = useState('')
   const filteredRows = useMemo(() => rows.filter((row) => rowMatches(row, query)), [rows, query])
 
   return (
     <div>
-      <h1 className="font-headline text-h2 text-connect-blue">{title}</h1>
-      <p className="mt-1 text-small text-slate">{description}</p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="font-headline text-h2 text-connect-blue">{title}</h1>
+          <p className="mt-1 text-small text-slate">{description}</p>
+        </div>
+        {actions}
+      </div>
 
       {summary && summary.length > 0 && (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
