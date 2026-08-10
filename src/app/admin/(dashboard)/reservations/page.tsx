@@ -3,10 +3,10 @@
 import { useState } from 'react'
 import { useQuery } from 'convex/react'
 import type { FunctionReturnType } from 'convex/server'
-import { CalendarCheck, DollarSign, Clock, Pencil } from 'lucide-react'
+import { CalendarCheck, DollarSign, Clock, Send } from 'lucide-react'
 import { api } from '@convex/_generated/api'
 import DataTable, { type Column } from '@/components/admin/DataTable'
-import ReservationDetailDialog from '@/components/admin/ReservationDetailDialog'
+import SendQuoteDrawer from '@/components/admin/SendQuoteDrawer'
 import { isConvexConfigured } from '@/lib/convex-client'
 
 type ReservationRow = FunctionReturnType<typeof api.reservations.list>[number]
@@ -27,23 +27,39 @@ export default function ReservationsPage() {
     { key: 'serviceTitle', label: 'Service' },
     { key: 'dates', label: 'Dates', render: (r) => `${r.startDate} → ${r.endDate}` },
     { key: 'time', label: 'Time', render: (r) => `${r.startTime} – ${r.endTime}` },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (r) => (
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+            r.status === 'quoted' ? 'bg-blue-light text-connect-blue' : 'bg-cloud text-slate'
+          }`}
+        >
+          {r.status === 'quoted' ? 'Quoted' : 'Pending'}
+        </span>
+      ),
+    },
     { key: 'total', label: 'Total', render: (r) => (r.total != null ? `$${r.total.toFixed(2)}` : '—') },
     {
       key: 'actions',
       label: 'Actions',
-      render: (r) => (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            setSelected(r)
-          }}
-          className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-slate transition-colors duration-250 hover:border-connect-blue hover:text-connect-blue"
-        >
-          <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-          Edit
-        </button>
-      ),
+      render: (r) =>
+        r.status === 'quoted' ? (
+          <span className="text-xs text-mist">Quoted</span>
+        ) : (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelected(r)
+            }}
+            className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-slate transition-colors duration-250 hover:border-connect-blue hover:text-connect-blue"
+          >
+            <Send className="h-3.5 w-3.5" aria-hidden="true" />
+            Send Quote
+          </button>
+        ),
     },
   ]
 
@@ -58,7 +74,7 @@ export default function ReservationsPage() {
         error={null}
         connected={isConvexConfigured}
         searchPlaceholder="Search reservations…"
-        onRowClick={(row) => setSelected(row)}
+        onRowClick={(row) => row.status !== 'quoted' && setSelected(row)}
         summary={[
           { label: 'Total reservations', value: all.length, icon: CalendarCheck },
           { label: 'Last 7 days', value: all.filter((r) => r._creationTime > weekCutoff).length, icon: Clock },
@@ -69,7 +85,7 @@ export default function ReservationsPage() {
           },
         ]}
       />
-      <ReservationDetailDialog reservation={selected} onOpenChange={(open) => !open && setSelected(null)} />
+      <SendQuoteDrawer reservation={selected} onOpenChange={(open) => !open && setSelected(null)} />
     </>
   )
 }

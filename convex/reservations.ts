@@ -15,6 +15,7 @@ export const list = query({
         ])
         return {
           ...reservation,
+          status: reservation.status ?? 'pending',
           serviceTitle: service?.title ?? 'Unknown service',
           clientEmail: client?.email ?? reservation.email ?? '—',
         }
@@ -23,25 +24,22 @@ export const list = query({
   },
 })
 
-// Admin — edit a reservation's schedule and pricing after staff review it.
-export const update = mutation({
+// Admin — price a pending reservation and send the quote. Moves it from
+// pending to quoted; nothing else about the request is editable here.
+export const sendQuote = mutation({
   args: {
     id: v.id('reservations'),
-    startDate: v.string(),
-    endDate: v.string(),
-    startTime: v.string(),
-    endTime: v.string(),
-    ratePerHour: v.optional(v.number()),
+    ratePerHour: v.number(),
     hst: v.string(),
-    hstAmount: v.optional(v.number()),
-    serviceAmount: v.optional(v.number()),
-    total: v.optional(v.number()),
-    totalHours: v.optional(v.number()),
-    totalDays: v.optional(v.number()),
+    hstAmount: v.number(),
+    serviceAmount: v.number(),
+    total: v.number(),
+    totalHours: v.number(),
+    totalDays: v.number(),
   },
   handler: async (ctx, { id, ...fields }) => {
     await requireAdmin(ctx)
-    await ctx.db.patch(id, fields)
+    await ctx.db.patch(id, { ...fields, status: 'quoted' })
   },
 })
 
@@ -62,7 +60,8 @@ export const create = mutation({
       ...args,
       clientId: userId,
       email: user?.email,
-      hst: '0',
+      hst: '13',
+      status: 'pending',
     })
   },
 })

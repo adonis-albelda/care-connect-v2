@@ -77,6 +77,9 @@ export default defineSchema({
     serviceAmount: v.optional(v.number()),
     totalHours: v.optional(v.number()),
     totalDays: v.optional(v.number()),
+    // Optional (not backfilled on existing rows) — code treats a missing
+    // status as 'pending'. New rows always set it explicitly.
+    status: v.optional(v.union(v.literal('pending'), v.literal('quoted'))),
   })
     .index('by_client', ['clientId'])
     .index('by_service', ['serviceId']),
