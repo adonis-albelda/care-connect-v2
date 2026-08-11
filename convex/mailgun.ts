@@ -4,6 +4,9 @@ interface MailgunAttachment {
   filename: string
   data: Buffer
   contentType: string
+  // Content-Disposition: inline (referenced via cid: in the HTML body)
+  // instead of a regular downloadable attachment.
+  inline?: boolean
 }
 
 interface SendMailgunEmailArgs {
@@ -31,7 +34,7 @@ export async function sendMailgunEmail({ to, subject, html, attachments = [] }: 
 
   for (const attachment of attachments) {
     const blob = new Blob([new Uint8Array(attachment.data)], { type: attachment.contentType })
-    form.append('attachment', blob, attachment.filename)
+    form.append(attachment.inline ? 'inline' : 'attachment', blob, attachment.filename)
   }
 
   const res = await fetch(`${apiBase}/v3/${domain}/messages`, {

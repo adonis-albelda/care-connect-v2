@@ -8,6 +8,7 @@ import { Eye, X } from 'lucide-react'
 import type { FunctionReturnType } from 'convex/server'
 import { api } from '@convex/_generated/api'
 import QuotationDocument from '@/components/admin/QuotationDocument'
+import { useToast } from '@/lib/toast-context'
 
 type ReservationRow = FunctionReturnType<typeof api.reservations.list>[number]
 
@@ -71,6 +72,7 @@ export default function SendQuoteDrawer({
 
 function SendQuoteForm({ reservation, onClose }: { reservation: ReservationRow; onClose: () => void }) {
   const sendQuoteEmail = useAction(api.quotationEmail.send)
+  const { showSuccess, showError } = useToast()
   const [rate, setRate] = useState('')
   const [hstPercent, setHstPercent] = useState('13')
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -104,9 +106,11 @@ function SendQuoteForm({ reservation, onClose }: { reservation: ReservationRow; 
         totalDays: days,
       })
       setConfirmOpen(false)
+      showSuccess(`Quotation sent to ${reservation.clientEmail}.`)
       onClose()
     } catch {
       setError("That email didn't send — check Mailgun is configured and try again.")
+      showError("That email didn't send — check Mailgun is configured and try again.")
       setConfirmOpen(false)
     } finally {
       setSending(false)

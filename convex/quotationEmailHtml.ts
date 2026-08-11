@@ -5,15 +5,15 @@ export function buildQuotationEmailHtml({
   clientEmail,
   contactEmail,
   contactPhone,
-  logoDataUri,
+  hasLogo,
 }: {
   clientEmail: string
   contactEmail: string
   contactPhone: string
-  // A data: URI, not a separate attachment — so the logo just renders in
-  // the message body instead of showing up as a file the client has to
-  // open.
-  logoDataUri?: string
+  // Referenced via cid:logo.png against a Content-Disposition: inline
+  // attachment (see quotationEmail.ts) — data: URIs get silently blocked by
+  // Gmail and several other major clients, showing a broken-image icon.
+  hasLogo: boolean
 }) {
   const connectBlue = '#183891'
   const blueDeep = '#0F2461'
@@ -33,8 +33,8 @@ export function buildQuotationEmailHtml({
             <tr>
               <td style="background-color:${connectBlue};padding:28px 32px;">
                 ${
-                  logoDataUri
-                    ? `<img src="${logoDataUri}" alt="Care Connect" width="150" style="display:block;height:auto;" />`
+                  hasLogo
+                    ? `<img src="cid:logo.png" alt="Care Connect" width="150" style="display:block;height:auto;" />`
                     : `<span style="color:#ffffff;font-size:20px;font-weight:700;">Care Connect</span>`
                 }
               </td>
