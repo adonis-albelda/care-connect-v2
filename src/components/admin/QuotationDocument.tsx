@@ -1,14 +1,14 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import Image from 'next/image'
 import { useQuery } from 'convex/react'
 import { differenceInCalendarDays } from 'date-fns'
-import { Printer } from 'lucide-react'
+import { Mail, MapPin, Phone, Printer } from 'lucide-react'
 import { api } from '@convex/_generated/api'
 import type { Id } from '@convex/_generated/dataModel'
 import { isConvexConfigured } from '@/lib/convex-client'
 import QuotationSectionBar from '@/components/admin/QuotationSectionBar'
-import QuotationSection from '@/components/admin/QuotationSection'
 import QuotationSocialRow from '@/components/admin/QuotationSocialRow'
 
 function money(value?: number) {
@@ -41,6 +41,42 @@ interface QuotationDocumentProps {
   hideActions?: boolean
 }
 
+// One physical page — quotation.pdf is a multi-page letter-size document,
+// not a single continuous article, so each section here is its own page
+// with page-break-after for print instead of one long scroll.
+function Page({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return (
+    <section
+      className={`mx-auto mb-6 flex w-full max-w-[8.5in] flex-col bg-white p-10 text-ink shadow-card break-after-page last:mb-0 print:mb-0 print:max-w-none print:p-12 print:shadow-none sm:p-12 ${className}`}
+      style={{ minHeight: '11in' }}
+    >
+      {children}
+    </section>
+  )
+}
+
+function PageHeader() {
+  return <Image src="/images/pdf-logo.png" alt="Care Connect — Care That Comes to You" width={160} height={42} className="h-auto w-36 flex-none" />
+}
+
+function PageFooter({ page }: { page: number }) {
+  return (
+    <div className="mt-auto flex items-center justify-between border-t border-border pt-4 text-xs text-mist">
+      <span>www.ucarecon.ca</span>
+      <span>Page {page}</span>
+    </div>
+  )
+}
+
+function BodyHtml({ html }: { html: string }) {
+  return (
+    <div
+      className="mt-4 text-body text-slate [&_li]:mb-1 [&_p]:mb-4 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  )
+}
+
 export default function QuotationDocument({ reservationId, pricingOverride, hideActions }: QuotationDocumentProps) {
   const reservation = useQuery(
     api.reservations.getForQuotation,
@@ -65,11 +101,12 @@ export default function QuotationDocument({ reservationId, pricingOverride, hide
     totalHours: reservation.totalHours ?? 0,
     totalDays: reservation.totalDays ?? dayCount(reservation.startDate, reservation.endDate),
   }
+  const preparedForEmail = reservation.clientEmail
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div>
       {!hideActions && (
-        <div className="mb-6 flex items-center justify-between print:hidden">
+        <div className="mx-auto mb-6 flex max-w-[8.5in] items-center justify-between print:hidden">
           <p className="text-small text-slate">
             {pricingOverride ? "Preview — this quote hasn't been sent yet." : "Print preview — use your browser's print dialog to save as PDF."}
           </p>
@@ -84,46 +121,71 @@ export default function QuotationDocument({ reservationId, pricingOverride, hide
         </div>
       )}
 
-      <article className="rounded-2xl border border-border bg-white p-8 text-ink shadow-card print:rounded-none print:border-none print:p-0 print:shadow-none sm:p-12">
-        <header className="flex items-center justify-between border-b border-border pb-6">
-          <Image src="/images/pdf-logo.png" alt="Care Connect — Care That Comes to You" width={180} height={48} className="h-auto w-40" />
-          <div className="text-right">
-            <p className="font-headline text-h3 text-ink">Quotation</p>
-            <p className="text-small text-slate">
-              {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-            </p>
-          </div>
-        </header>
+      {/* Page 1 — cover */}
+      <Page className="justify-between">
+        <PageHeader />
+        <div className="my-10 h-56 w-full rounded-sm bg-connect-blue sm:h-72" />
+        <div>
+          <p className="text-small text-ink">
+            Prepared for : {reservation.clientName || 'Valued client'} ({preparedForEmail})
+          </p>
+          <p className="mt-4 text-small text-ink">Prepared by : Care Connect</p>
+        </div>
+        <QuotationSocialRow />
+      </Page>
 
-        <section className="grid gap-6 border-b border-border py-6 sm:grid-cols-2">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate">Prepared for</p>
-            <p className="mt-1 text-body font-medium text-ink">{reservation.clientName || 'Valued client'}</p>
-            <p className="text-small text-slate">{reservation.clientEmail}</p>
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate">Prepared by</p>
-            <p className="mt-1 text-body font-medium text-ink">Care Connect</p>
-            <p className="text-small text-slate">{template?.contactEmail}</p>
-          </div>
-        </section>
+      {template && (
+        <>
+          {/* Page 2 — company introduction */}
+          <Page>
+            <PageHeader />
+            <div className="mt-10 flex-1">
+              <h2 className="font-headline text-h2 text-ink">{template.introTitle}</h2>
+              <BodyHtml html={template.introBody} />
+            </div>
+            <PageFooter page={2} />
+          </Page>
 
-        {template && (
-          <>
-            <QuotationSection title={template.introTitle} body={template.introBody} />
-            <QuotationSection title={template.staffTitle} body={template.staffBody} />
-            <QuotationSection title={template.homeSupportTitle} body={template.homeSupportBody} />
-            <QuotationSection title={template.personalCareTitle} body={template.personalCareBody} />
-            <QuotationSection title={template.complexCareTitle} body={template.complexCareBody} />
-          </>
-        )}
+          {/* Page 3 — staff */}
+          <Page>
+            <PageHeader />
+            <div className="mt-10 flex-1">
+              <h2 className="font-headline text-h2 text-ink">{template.staffTitle}</h2>
+              <BodyHtml html={template.staffBody} />
+            </div>
+            <PageFooter page={3} />
+          </Page>
 
-        <section className="border-b border-border py-6">
-          <h2 className="font-headline text-h3 text-ink">{reservation.serviceTitle}</h2>
-          <div
-            className="mt-3 text-body text-slate [&_p]:mb-3 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5"
-            dangerouslySetInnerHTML={{ __html: reservation.serviceDescription }}
-          />
+          {/* Page 4 — home support services */}
+          <Page>
+            <PageHeader />
+            <div className="mt-10 flex-1">
+              <h2 className="font-headline text-h2 text-ink">{template.homeSupportTitle}</h2>
+              <BodyHtml html={template.homeSupportBody} />
+            </div>
+            <PageFooter page={4} />
+          </Page>
+
+          {/* Page 5 — personal care + complex care */}
+          <Page>
+            <PageHeader />
+            <div className="mt-10 flex-1">
+              <h2 className="font-headline text-h2 text-ink">{template.personalCareTitle}</h2>
+              <BodyHtml html={template.personalCareBody} />
+              <h2 className="mt-8 font-headline text-h2 text-ink">{template.complexCareTitle}</h2>
+              <BodyHtml html={template.complexCareBody} />
+            </div>
+            <PageFooter page={5} />
+          </Page>
+        </>
+      )}
+
+      {/* Page 6 — the quoted service, plus quote breakdown */}
+      <Page>
+        <PageHeader />
+        <div className="mt-10 flex-1">
+          <h2 className="font-headline text-h2 text-ink">{reservation.serviceTitle}</h2>
+          <BodyHtml html={reservation.serviceDescription} />
           {reservation.serviceAssistance.length > 0 && (
             <ul className="mt-3 grid list-disc gap-1.5 pl-5 text-small text-ink sm:grid-cols-2">
               {reservation.serviceAssistance.map((activity) => (
@@ -131,10 +193,8 @@ export default function QuotationDocument({ reservationId, pricingOverride, hide
               ))}
             </ul>
           )}
-        </section>
 
-        <section className="py-6">
-          <h2 className="font-headline text-h3 text-ink">Quote</h2>
+          <h2 className="mt-8 font-headline text-h2 text-ink">Quote</h2>
 
           <div className="mt-4">
             <QuotationSectionBar>Service</QuotationSectionBar>
@@ -178,19 +238,49 @@ export default function QuotationDocument({ reservationId, pricingOverride, hide
               <span>{money(pricing.total)}</span>
             </div>
           </div>
-        </section>
+        </div>
+        <PageFooter page={6} />
+      </Page>
 
-        {template && (
-          <footer className="border-t border-border pt-6 text-center text-small text-slate">
-            <p className="font-medium text-ink">Care Connect — {template.footerNote}</p>
-            <p className="mt-1">
-              {template.contactEmail} · {template.contactPhone}
-            </p>
-            <p>{template.contactAddress}</p>
-            <QuotationSocialRow />
-          </footer>
-        )}
-      </article>
+      {/* Page 7 — back cover */}
+      {template && (
+        <Page className="items-center justify-between text-center">
+          <div />
+          <div className="flex flex-col items-center">
+            <Image src="/images/logo.svg" alt="Care Connect" width={140} height={140} className="h-32 w-32" />
+            <p className="mt-4 font-headline text-h2 text-ink">Care Connect</p>
+            <p className="text-body text-slate">{template.footerNote}</p>
+
+            <div className="mt-10 flex flex-col items-center gap-3 text-small text-ink">
+              <span className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-connect-blue" aria-hidden="true" />
+                {template.contactEmail}
+              </span>
+              <span className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-connect-blue" aria-hidden="true" />
+                {template.contactPhone}
+              </span>
+              <span className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 flex-none text-connect-blue" aria-hidden="true" />
+                {template.contactAddress}
+              </span>
+            </div>
+          </div>
+
+          <div className="w-full">
+            <div
+              className="h-40 w-full rounded-sm"
+              style={{
+                background:
+                  'repeating-linear-gradient(135deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 28px), radial-gradient(circle at 25% 30%, rgba(255,255,255,0.12), transparent 45%), radial-gradient(circle at 75% 70%, rgba(255,255,255,0.1), transparent 45%), #183891',
+              }}
+            />
+            <div className="mt-4">
+              <QuotationSocialRow />
+            </div>
+          </div>
+        </Page>
+      )}
     </div>
   )
 }
