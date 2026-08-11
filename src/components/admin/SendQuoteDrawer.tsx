@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { useMutation } from 'convex/react'
+import { useAction } from 'convex/react'
 import { differenceInCalendarDays } from 'date-fns'
 import { Eye, X } from 'lucide-react'
 import type { FunctionReturnType } from 'convex/server'
@@ -70,7 +70,7 @@ export default function SendQuoteDrawer({
 }
 
 function SendQuoteForm({ reservation, onClose }: { reservation: ReservationRow; onClose: () => void }) {
-  const sendQuote = useMutation(api.reservations.sendQuote)
+  const sendQuoteEmail = useAction(api.quotationEmail.send)
   const [rate, setRate] = useState('')
   const [hstPercent, setHstPercent] = useState('13')
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -93,7 +93,7 @@ function SendQuoteForm({ reservation, onClose }: { reservation: ReservationRow; 
     setSending(true)
     setError(null)
     try {
-      await sendQuote({
+      await sendQuoteEmail({
         id: reservation._id,
         ratePerHour: rateValue,
         hst: hstPercent,
@@ -106,7 +106,7 @@ function SendQuoteForm({ reservation, onClose }: { reservation: ReservationRow; 
       setConfirmOpen(false)
       onClose()
     } catch {
-      setError("That didn't go through — try again.")
+      setError("That email didn't send — check Mailgun is configured and try again.")
       setConfirmOpen(false)
     } finally {
       setSending(false)
@@ -270,7 +270,8 @@ function SendQuoteForm({ reservation, onClose }: { reservation: ReservationRow; 
           <Dialog.Content className="fixed left-1/2 top-1/2 z-[96] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-card-hover focus:outline-none">
             <Dialog.Title className="font-headline text-h3 text-connect-blue">Send this quote?</Dialog.Title>
             <Dialog.Description className="mt-2 text-small text-slate">
-              The client will be marked as quoted for {money(grandTotal)}. This can&rsquo;t be undone from here.
+              We&rsquo;ll email {reservation.clientEmail} the quotation PDF for {money(grandTotal)} and mark this
+              reservation as quoted. This can&rsquo;t be undone from here.
             </Dialog.Description>
             <div className="mt-5 flex flex-col gap-3 sm:flex-row-reverse">
               <button
