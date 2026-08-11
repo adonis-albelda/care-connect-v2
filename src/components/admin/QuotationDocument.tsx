@@ -8,6 +8,7 @@ import { Mail, MapPin, Phone, Printer } from 'lucide-react'
 import { api } from '@convex/_generated/api'
 import type { Id } from '@convex/_generated/dataModel'
 import { isConvexConfigured } from '@/lib/convex-client'
+import { QUOTATION_TEMPLATE_DEFAULTS } from '@/lib/quotationDefaults'
 import QuotationSectionBar from '@/components/admin/QuotationSectionBar'
 import QuotationSocialRow from '@/components/admin/QuotationSocialRow'
 
@@ -102,6 +103,10 @@ export default function QuotationDocument({ reservationId, pricingOverride, hide
     totalDays: reservation.totalDays ?? dayCount(reservation.startDate, reservation.endDate),
   }
   const preparedForEmail = reservation.clientEmail
+  // Falls back to the same defaults the Templates page seeds its form with,
+  // so a preview always shows real content even before the admin has saved
+  // any customizations there.
+  const t = template ?? QUOTATION_TEMPLATE_DEFAULTS
 
   return (
     <div>
@@ -134,51 +139,47 @@ export default function QuotationDocument({ reservationId, pricingOverride, hide
         <QuotationSocialRow />
       </Page>
 
-      {template && (
-        <>
-          {/* Page 2 — company introduction */}
-          <Page>
-            <PageHeader />
-            <div className="mt-10 flex-1">
-              <h2 className="font-headline text-h2 text-ink">{template.introTitle}</h2>
-              <BodyHtml html={template.introBody} />
-            </div>
-            <PageFooter page={2} />
-          </Page>
+      {/* Page 2 — company introduction */}
+      <Page>
+        <PageHeader />
+        <div className="mt-10 flex-1">
+          <h2 className="font-headline text-h2 text-ink">{t.introTitle}</h2>
+          <BodyHtml html={t.introBody} />
+        </div>
+        <PageFooter page={2} />
+      </Page>
 
-          {/* Page 3 — staff */}
-          <Page>
-            <PageHeader />
-            <div className="mt-10 flex-1">
-              <h2 className="font-headline text-h2 text-ink">{template.staffTitle}</h2>
-              <BodyHtml html={template.staffBody} />
-            </div>
-            <PageFooter page={3} />
-          </Page>
+      {/* Page 3 — staff */}
+      <Page>
+        <PageHeader />
+        <div className="mt-10 flex-1">
+          <h2 className="font-headline text-h2 text-ink">{t.staffTitle}</h2>
+          <BodyHtml html={t.staffBody} />
+        </div>
+        <PageFooter page={3} />
+      </Page>
 
-          {/* Page 4 — home support services */}
-          <Page>
-            <PageHeader />
-            <div className="mt-10 flex-1">
-              <h2 className="font-headline text-h2 text-ink">{template.homeSupportTitle}</h2>
-              <BodyHtml html={template.homeSupportBody} />
-            </div>
-            <PageFooter page={4} />
-          </Page>
+      {/* Page 4 — home support services */}
+      <Page>
+        <PageHeader />
+        <div className="mt-10 flex-1">
+          <h2 className="font-headline text-h2 text-ink">{t.homeSupportTitle}</h2>
+          <BodyHtml html={t.homeSupportBody} />
+        </div>
+        <PageFooter page={4} />
+      </Page>
 
-          {/* Page 5 — personal care + complex care */}
-          <Page>
-            <PageHeader />
-            <div className="mt-10 flex-1">
-              <h2 className="font-headline text-h2 text-ink">{template.personalCareTitle}</h2>
-              <BodyHtml html={template.personalCareBody} />
-              <h2 className="mt-8 font-headline text-h2 text-ink">{template.complexCareTitle}</h2>
-              <BodyHtml html={template.complexCareBody} />
-            </div>
-            <PageFooter page={5} />
-          </Page>
-        </>
-      )}
+      {/* Page 5 — personal care + complex care */}
+      <Page>
+        <PageHeader />
+        <div className="mt-10 flex-1">
+          <h2 className="font-headline text-h2 text-ink">{t.personalCareTitle}</h2>
+          <BodyHtml html={t.personalCareBody} />
+          <h2 className="mt-8 font-headline text-h2 text-ink">{t.complexCareTitle}</h2>
+          <BodyHtml html={t.complexCareBody} />
+        </div>
+        <PageFooter page={5} />
+      </Page>
 
       {/* Page 6 — the quoted service, plus quote breakdown */}
       <Page>
@@ -243,44 +244,42 @@ export default function QuotationDocument({ reservationId, pricingOverride, hide
       </Page>
 
       {/* Page 7 — back cover */}
-      {template && (
-        <Page className="items-center justify-between text-center">
-          <div />
-          <div className="flex flex-col items-center">
-            <Image src="/images/logo.svg" alt="Care Connect" width={140} height={140} className="h-32 w-32" />
-            <p className="mt-4 font-headline text-h2 text-ink">Care Connect</p>
-            <p className="text-body text-slate">{template.footerNote}</p>
+      <Page className="items-center justify-between text-center">
+        <div />
+        <div className="flex flex-col items-center">
+          <Image src="/images/logo.svg" alt="Care Connect" width={140} height={140} className="h-32 w-32" />
+          <p className="mt-4 font-headline text-h2 text-ink">Care Connect</p>
+          <p className="text-body text-slate">{t.footerNote}</p>
 
-            <div className="mt-10 flex flex-col items-center gap-3 text-small text-ink">
-              <span className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-connect-blue" aria-hidden="true" />
-                {template.contactEmail}
-              </span>
-              <span className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-connect-blue" aria-hidden="true" />
-                {template.contactPhone}
-              </span>
-              <span className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 flex-none text-connect-blue" aria-hidden="true" />
-                {template.contactAddress}
-              </span>
-            </div>
+          <div className="mt-10 flex flex-col items-center gap-3 text-small text-ink">
+            <span className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-connect-blue" aria-hidden="true" />
+              {t.contactEmail}
+            </span>
+            <span className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-connect-blue" aria-hidden="true" />
+              {t.contactPhone}
+            </span>
+            <span className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 flex-none text-connect-blue" aria-hidden="true" />
+              {t.contactAddress}
+            </span>
           </div>
+        </div>
 
-          <div className="w-full">
-            <div
-              className="h-40 w-full rounded-sm"
-              style={{
-                background:
-                  'repeating-linear-gradient(135deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 28px), radial-gradient(circle at 25% 30%, rgba(255,255,255,0.12), transparent 45%), radial-gradient(circle at 75% 70%, rgba(255,255,255,0.1), transparent 45%), #183891',
-              }}
-            />
-            <div className="mt-4">
-              <QuotationSocialRow />
-            </div>
+        <div className="w-full">
+          <div
+            className="h-40 w-full rounded-sm"
+            style={{
+              background:
+                'repeating-linear-gradient(135deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 28px), radial-gradient(circle at 25% 30%, rgba(255,255,255,0.12), transparent 45%), radial-gradient(circle at 75% 70%, rgba(255,255,255,0.1), transparent 45%), #183891',
+            }}
+          />
+          <div className="mt-4">
+            <QuotationSocialRow />
           </div>
-        </Page>
-      )}
+        </div>
+      </Page>
     </div>
   )
 }
