@@ -4,7 +4,7 @@ import { useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { useAction } from 'convex/react'
 import { differenceInCalendarDays } from 'date-fns'
-import { Eye, X } from 'lucide-react'
+import { Eye, Mail, X } from 'lucide-react'
 import type { FunctionReturnType } from 'convex/server'
 import { api } from '@convex/_generated/api'
 import QuotationDocument from '@/components/admin/QuotationDocument'
@@ -271,29 +271,47 @@ function SendQuoteForm({ reservation, onClose }: { reservation: ReservationRow; 
       <Dialog.Root open={confirmOpen} onOpenChange={setConfirmOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-[95] bg-ink/55 backdrop-blur-sm" />
-          <Dialog.Content className="fixed left-1/2 top-1/2 z-[96] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-card-hover focus:outline-none">
-            <Dialog.Title className="font-headline text-h3 text-connect-blue">Send this quote?</Dialog.Title>
-            <Dialog.Description className="mt-2 text-small text-slate">
-              We&rsquo;ll email {reservation.clientEmail} the quotation PDF for {money(grandTotal)} and mark this
-              reservation as quoted. This can&rsquo;t be undone from here.
-            </Dialog.Description>
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row-reverse">
-              <button
-                type="button"
-                onClick={handleSend}
-                disabled={sending}
-                className="flex min-h-[44px] flex-1 items-center justify-center rounded-xl bg-connect-blue text-body font-semibold text-white shadow-card transition-colors duration-250 hover:bg-blue-deep disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {sending ? 'Sending…' : 'Yes, send it'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmOpen(false)}
-                disabled={sending}
-                className="flex min-h-[44px] flex-1 items-center justify-center rounded-xl border border-border text-body font-medium text-slate transition-colors duration-250 hover:bg-cloud disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Go back
-              </button>
+          <Dialog.Content className="fixed left-1/2 top-1/2 z-[96] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white shadow-card-hover focus:outline-none">
+            <div className="p-6 sm:p-8">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-light text-connect-blue">
+                <Mail className="h-6 w-6" aria-hidden="true" />
+              </span>
+
+              <Dialog.Title className="mt-4 font-headline text-h3 text-ink">Send this quote?</Dialog.Title>
+              <Dialog.Description className="mt-2 text-body text-slate">
+                We&rsquo;ll email {reservation.clientEmail} the quotation PDF and mark this reservation as quoted.
+                This can&rsquo;t be undone from here.
+              </Dialog.Description>
+
+              <ul className="mt-4 flex flex-col gap-2 rounded-xl bg-cloud p-4">
+                <li className="flex items-start gap-2 text-small text-ink">
+                  <span className="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-connect-blue" aria-hidden="true" />
+                  Rate: {money(rateValue)}/hr · {totalHours.toFixed(2)} hrs · HST ({hstValue}%): {money(hstAmount)}
+                </li>
+                <li className="flex items-start gap-2 text-small text-ink">
+                  <span className="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-connect-blue" aria-hidden="true" />
+                  Grand total: <span className="font-semibold text-connect-blue">{money(grandTotal)}</span>
+                </li>
+              </ul>
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row-reverse">
+                <button
+                  type="button"
+                  onClick={handleSend}
+                  disabled={sending}
+                  className="flex min-h-[48px] flex-1 items-center justify-center rounded-xl bg-connect-blue text-body font-semibold text-white shadow-card transition-all duration-250 hover:-translate-y-0.5 hover:bg-blue-deep hover:shadow-card-hover disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+                >
+                  {sending ? 'Sending…' : 'Yes, send it'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmOpen(false)}
+                  disabled={sending}
+                  className="flex min-h-[48px] flex-1 items-center justify-center rounded-xl border border-border text-body font-medium text-slate transition-colors duration-250 hover:bg-cloud disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Go back
+                </button>
+              </div>
             </div>
           </Dialog.Content>
         </Dialog.Portal>

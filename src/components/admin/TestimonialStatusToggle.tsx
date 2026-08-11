@@ -11,6 +11,7 @@ export default function TestimonialStatusToggle({ testimonial }: { testimonial: 
   const approved = testimonial.status === 'approved'
 
   const toggle = () => setStatus({ id: testimonial._id, status: approved ? 'pending' : 'approved' })
+  const preview = testimonial.testimony.length > 140 ? `${testimonial.testimony.slice(0, 140)}…` : testimonial.testimony
 
   return (
     <ConfirmButton
@@ -19,8 +20,10 @@ export default function TestimonialStatusToggle({ testimonial }: { testimonial: 
       description={
         approved
           ? "It'll be removed from the public testimonials section right away."
-          : "It'll show up in the public testimonials section right away."
+          : "It'll show up in the public testimonials section right away, in the client's own words."
       }
+      details={[`From ${testimonial.clientName ?? 'a client'}: “${preview}”`]}
+      tone={approved ? 'warning' : 'default'}
       confirmLabel={approved ? 'Yes, unapprove' : 'Yes, approve'}
       busyLabel="Updating…"
       stopPropagation

@@ -1,7 +1,7 @@
 'use client'
 
 import { useAction } from 'convex/react'
-import { RotateCw } from 'lucide-react'
+import { RotateCw, Mail } from 'lucide-react'
 import type { FunctionReturnType } from 'convex/server'
 import { api } from '@convex/_generated/api'
 import { useToast } from '@/lib/toast-context'
@@ -38,7 +38,12 @@ export default function ResendQuoteButton({ reservation }: { reservation: Reserv
     <ConfirmButton
       onConfirm={handleResend}
       title="Resend this quotation?"
-      description={`We'll email the quotation PDF to ${reservation.clientEmail} again.`}
+      description={`We'll email the quotation PDF to ${reservation.clientEmail} again, using the pricing already on file.`}
+      details={[
+        `Rate: $${(reservation.ratePerHour ?? 0).toFixed(2)}/hr · Total: $${(reservation.total ?? 0).toFixed(2)}`,
+        'A fresh copy of the PDF is generated and attached — nothing changes on the reservation.',
+      ]}
+      icon={Mail}
       confirmLabel="Yes, resend"
       busyLabel="Resending…"
       stopPropagation
