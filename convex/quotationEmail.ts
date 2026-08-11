@@ -63,17 +63,14 @@ export const send = action({
       clientEmail: reservation.clientEmail,
       contactEmail: template.contactEmail,
       contactPhone: template.contactPhone,
-      hasLogo: !!emailLogo,
+      logoDataUri: emailLogo ? `data:image/png;base64,${emailLogo.toString('base64')}` : undefined,
     })
 
     await sendMailgunEmail({
       to: reservation.clientEmail,
       subject: 'Care Connect - Quote Summary',
       html,
-      attachments: [
-        { filename: 'care-connect-quotation.pdf', data: pdf, contentType: 'application/pdf' },
-        ...(emailLogo ? [{ filename: 'logo.png', data: emailLogo, contentType: 'image/png', inline: true, cid: 'logo.png' }] : []),
-      ],
+      attachments: [{ filename: 'care-connect-quotation.pdf', data: pdf, contentType: 'application/pdf' }],
     })
 
     await ctx.runMutation(api.reservations.sendQuote, { id, ...pricing })

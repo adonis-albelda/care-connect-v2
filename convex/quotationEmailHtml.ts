@@ -5,12 +5,15 @@ export function buildQuotationEmailHtml({
   clientEmail,
   contactEmail,
   contactPhone,
-  hasLogo,
+  logoDataUri,
 }: {
   clientEmail: string
   contactEmail: string
   contactPhone: string
-  hasLogo: boolean
+  // A data: URI, not a separate attachment — so the logo just renders in
+  // the message body instead of showing up as a file the client has to
+  // open.
+  logoDataUri?: string
 }) {
   const connectBlue = '#183891'
   const blueDeep = '#0F2461'
@@ -30,8 +33,8 @@ export function buildQuotationEmailHtml({
             <tr>
               <td style="background-color:${connectBlue};padding:28px 32px;">
                 ${
-                  hasLogo
-                    ? `<img src="cid:logo.png" alt="Care Connect" width="150" style="display:block;height:auto;" />`
+                  logoDataUri
+                    ? `<img src="${logoDataUri}" alt="Care Connect" width="150" style="display:block;height:auto;" />`
                     : `<span style="color:#ffffff;font-size:20px;font-weight:700;">Care Connect</span>`
                 }
               </td>
